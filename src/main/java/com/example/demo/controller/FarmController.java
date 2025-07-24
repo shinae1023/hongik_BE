@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.FarmCreateRequestDto;
+import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailDto;
 import com.example.demo.dto.response.FarmListDto;
 import com.example.demo.dto.response.FarmSearchDto;
@@ -15,6 +17,11 @@ import java.util.List;
 @RequestMapping("/farm")
 public class FarmController {
     private final FarmService farmService;
+
+    @PostMapping
+    public ResponseEntity<FarmCreateResponseDto> createFarm(@RequestBody FarmCreateRequestDto requestDto) {
+        return ResponseEntity.ok(farmService.createFarm(requestDto));
+    }
 
     // 전체 목록 조회
     @GetMapping
