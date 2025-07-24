@@ -8,9 +8,8 @@ import lombok.Getter;
 public class FarmSearchDto {
     private Long id;
     private String title;
-    private String price;
+    private Integer price;
     private String rentalPeriod;
     private String address;
-    private String thumbnailUrl;
     private Boolean isAvailable;
 }

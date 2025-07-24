@@ -14,25 +14,9 @@ public class FarmDetailDto {
     private String description;
     private String address;
     private String rentalPeriod;
-    private String price;
+    private Integer price;
     private List<String> images;
-    private ProviderProfileDto providerProfile;
-    private AccountInfoDto accountInfo;
     private Boolean isAvailable;
     private LocalDateTime createdAt;
 
-    @Getter
-    @Builder
-    public static class ProviderProfileDto {
-        private String nickname;
-        private String email;
-        private String phone;
-    }
-
-    @Getter
-    @Builder
-    public static class AccountInfoDto {
-        private String bank;
-        private String accountNumber;
-    }
 }

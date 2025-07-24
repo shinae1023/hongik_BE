@@ -37,9 +37,19 @@ public class Farm {
     @JoinColumn(name = "provider_id")
     private User provider;
 
-    @Embedded
-    private AccountInfo accountInfo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user; //텃밭 등록자 (판매자)
 
-    @OneToMany(mappedBy = "farm", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FarmImage> images;
+    @Builder
+    public Farm(String title, String description, String address, String rentalPeriod, Integer price,
+                boolean isAvailable, LocalDateTime createdAt, User user) {
+        this.title = title;
+        this.description = description;
+        this.address = address;
+        this.rentalPeriod = rentalPeriod;
+        this.price = price;
+        this.isAvailable = isAvailable;
+        this.createdAt = createdAt;
+        this.user = user;
+    }
 }
