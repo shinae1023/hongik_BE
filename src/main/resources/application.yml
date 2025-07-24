@@ -1,0 +1,38 @@
+server:
+  port: 8080  # 서버가 실행될 포트 번호
+
+spring:
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:  # 카카오 로그인 설정
+            client-id: c305c20845d7d5bf52199d9566b1e52c # 환경변수로 설정 (보안상 중요!)
+            client-secret: 7V7cBRONLFB1Or1Ij5hyYt6W7S3jA5Rr
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            scope: profile_nickname, profile_image, account_email
+            client-name: Kakao
+        provider:
+          kakao:  # 카카오 OAuth2 제공자 설정
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id  # 카카오에서 사용자 식별자로 사용할 속성
+#
+## JWT 토큰 설정
+jwt:
+  secret: my-secret-key-1023-0310-12345678
+  # Access Token: 짧은 만료시간 (보안 강화)
+  access-token-expiration: 3600000    # 1시간 (1 * 60 * 60 * 1000)
+  # Refresh Token: 긴 만료시간 (사용자 편의성)
+  refresh-token-expiration: 1209600000
+
+
+## 로그 레벨 설정
+logging:
+  level:
+    org.springframework.security: DEBUG  # 스프링 시큐리티 디버그 로그
+    com.example.oauth: DEBUG  # 우리 패키지 디버그 로그
