@@ -30,11 +30,15 @@ public class User implements UserDetails {
 
     private String socialId;
     private String address;
+<<<<<<< HEAD
     private String accountNumber;
     private String bank;
 
     private String bank;
     private String accountNumber;
+=======
+    private String account;
+>>>>>>> 4496095 (fix: user entity 수정)
 
     @Enumerated(EnumType.STRING)
     private Role role;
