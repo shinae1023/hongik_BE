@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.PostRequestDto;
 import com.example.demo.dto.response.PostResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
-import com.example.demo.entity.Category;
 import com.example.demo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
     // 게시글 생성
     @PostMapping
     public ResponseEntity<Long> createPost(@RequestBody PostRequestDto dto) {
