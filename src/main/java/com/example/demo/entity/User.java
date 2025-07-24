@@ -24,10 +24,14 @@ public class User implements UserDetails {
     private String nickname;
     private String password;
     private String email;
+    private String phone;
+    private String profileImage;
+
 
     private String socialId;
     private String address;
-    private String account;
+    private String accountNumber;
+    private String bank;
 
     @Enumerated(EnumType.STRING)
     private Role role;
