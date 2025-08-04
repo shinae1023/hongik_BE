@@ -12,7 +12,7 @@ spring:
             client-secret: 7V7cBRONLFB1Or1Ij5hyYt6W7S3jA5Rr
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: https://spacefarm.shop/login/oauth2/code/kakao
             scope: profile_nickname, profile_image, account_email
             client-name: Kakao
         provider:
