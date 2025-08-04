@@ -11,5 +11,6 @@ public class PostSummaryDto {
     private Category category;
     private String title;
     private String authorNickname;
+    private String thumbnailUrl;
 }
 
