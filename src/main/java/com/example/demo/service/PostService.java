@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.PostRequestDto;
+import com.example.demo.dto.response.CommentResponseDto;
 import com.example.demo.dto.response.PostResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
 import com.example.demo.entity.Category;
@@ -82,6 +83,15 @@ public class PostService {
                 .map(Image::getImageUrl)
                 .collect(Collectors.toList());
 
+        List<CommentResponseDto> commentDtos = post.getComments().stream()
+                .map(comment -> CommentResponseDto.builder()
+                        .userId(comment.getUser().getUserId())
+                        .content(comment.getContent())
+                        .createdAt(comment.getCreatedAt())
+                        .authorNickname(comment.getUser().getNickname())
+                        .build())
+                .collect(Collectors.toList());
+
         return PostResponseDto.builder()
                 .id(post.getId())
                 .category(post.getCategory())
@@ -92,6 +102,8 @@ public class PostService {
                 .modifiedAt(post.getModifiedAt())
                 .authorNickname(post.getUser().getNickname())
                 .imageUrls(imageUrls)
+                .comments(commentDtos)
+                .likeCount((long) post.getLikes().size())
                 .build();
     }
 
@@ -113,7 +125,7 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public List<PostSummaryDto> getPostsAll() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllWithLikes().stream()
                 .map(this::convertToSummaryDto)
                 .collect(Collectors.toList());
     }
@@ -161,6 +173,7 @@ public class PostService {
                 .category(post.getCategory())
                 .authorNickname(post.getUser().getNickname())
                 .thumbnailUrl(thumbnailUrl) // 썸네일 추가
+                .likeCount((long) post.getLikes().size())
                 .build();
     }
 
