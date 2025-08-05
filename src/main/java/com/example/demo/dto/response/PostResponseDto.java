@@ -19,5 +19,7 @@ public class PostResponseDto {
     private Timestamp modifiedAt;
     private String authorNickname;
     private List<String> imageUrls;
+    private List<CommentResponseDto> comments;
+    private Long likeCount;
 }
 

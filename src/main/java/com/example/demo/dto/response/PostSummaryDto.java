@@ -12,5 +12,6 @@ public class PostSummaryDto {
     private String title;
     private String authorNickname;
     private String thumbnailUrl;
+    private Long likeCount;
 }
 
