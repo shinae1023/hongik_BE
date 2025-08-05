@@ -20,6 +20,7 @@ public class ChatRoomResponseDto {
     public static class FarmInfo {
         private Long id;
         private String title;
+        private String thumbnailUrl;
         private Integer price;
     }
 
@@ -28,5 +29,6 @@ public class ChatRoomResponseDto {
     public static class UserInfo {
         private Long id;
         private String nickname;
+        private String profileImage;
     }
 }
