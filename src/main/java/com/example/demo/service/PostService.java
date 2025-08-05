@@ -154,10 +154,19 @@ public class PostService {
      * 게시글 제목으로 검색
      */
     @Transactional(readOnly = true)
-    public List<PostSummaryDto> getPostsByTitle(String title) {
-        return postRepository.findByTitleContaining(title).stream()
-                .map(this::convertToSummaryDto)
-                .collect(Collectors.toList());
+    public List<PostSummaryDto> searchPosts(String title, Category category) {
+        // category 값이 null인지 아닌지에 따라 다른 Repository 메소드를 호출합니다.
+        if (category != null) {
+            // 카테고리가 지정된 경우: 해당 카테고리 내에서 제목으로 검색
+            return postRepository.findByTitleContainingAndCategory(title, category).stream()
+                    .map(this::convertToSummaryDto)
+                    .collect(Collectors.toList());
+        } else {
+            // 카테고리가 지정되지 않은 경우: 전체 게시판에서 제목으로 검색
+            return postRepository.findByTitleContaining(title).stream()
+                    .map(this::convertToSummaryDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**

@@ -16,4 +16,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // N+1 문제 해결을 위해 Fetch Join 사용
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.likes")
     List<Post> findAllWithLikes();
+    List<Post> findByTitleContainingAndCategory(String title, Category category);
 }
