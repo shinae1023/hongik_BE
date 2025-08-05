@@ -33,9 +33,6 @@ public class User implements UserDetails {
     private String accountNumber;
     private String bank;
 
-    private String bank;
-    private String accountNumber;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
