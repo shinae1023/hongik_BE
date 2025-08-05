@@ -77,12 +77,15 @@ public class ChatRoomService {
                 .consumer(ChatRoomResponseDto.UserInfo.builder()
                         .id(chatRoom.getConsumer().getUserId())
                         .nickname(chatRoom.getConsumer().getNickname())
+                        .profileImage(chatRoom.getConsumer().getProfileImage())
                         .build())
                 .provider(ChatRoomResponseDto.UserInfo.builder()
                         .id(chatRoom.getProvider().getUserId())
                         .nickname(chatRoom.getProvider().getNickname())
+                        .profileImage(chatRoom.getProvider().getProfileImage())
                         .build())
                 .createdAt(chatRoom.getCreatedAt())
                 .build();
     }
 }
+
