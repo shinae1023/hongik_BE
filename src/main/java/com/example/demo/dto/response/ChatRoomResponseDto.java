@@ -32,3 +32,4 @@ public class ChatRoomResponseDto {
         private String profileImage;
     }
 }
+
