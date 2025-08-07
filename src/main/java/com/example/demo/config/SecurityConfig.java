@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+import com.example.demo.config.jwt.JwtAccessDeniedHandler;
+import com.example.demo.config.jwt.JwtAuthenticationEntryPoint;
 import com.example.demo.global.JwtTokenFilter;
 import com.example.demo.service.KakaoOAuth2UserService;
 import com.example.demo.service.OAuth2AuthenticationSuccessHandler;
@@ -9,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,6 +30,8 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     /**
      * Spring Security 필터 체인 설정
      * 모든 보안 규칙을 정의하는 핵심 메서드
@@ -52,6 +58,12 @@ public class SecurityConfig {
                 // JWT 토큰을 사용하므로 세션을 생성하지 않음
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // 예외 처리 핸들러
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
 
                 // === 요청 권한 설정 ===
@@ -100,6 +112,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
     /**
      * CORS 설정
      * 프론트엔드(React, Vue 등)에서 백엔드 API 호출 시 필요
@@ -133,4 +151,6 @@ public class SecurityConfig {
 
         return source;
     }
+
+
 }
