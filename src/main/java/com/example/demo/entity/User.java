@@ -42,6 +42,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
+    private int ecoScore;
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
