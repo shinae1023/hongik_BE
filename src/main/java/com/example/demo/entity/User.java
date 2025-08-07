@@ -15,19 +15,26 @@ import java.util.Collections;
 @Builder
 @Getter
 @Setter
-public class User implements UserDetails {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
     private String name;
     private String nickname;
-    private String password;
-    private String email;
+    private String phone;
+    private String profileImage;
 
     private String socialId;
     private String address;
-    private String account;
+    private String accountNumber;
+    private String bank;
 
     private String bank;
     private String accountNumber;
@@ -37,16 +44,6 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return "";
-    }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
