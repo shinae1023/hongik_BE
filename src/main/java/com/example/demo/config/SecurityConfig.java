@@ -76,6 +76,7 @@ public class SecurityConfig {
                                 "/h2-console/**",      // H2 데이터베이스 콘솔
                                 "/api/auth/**",   // 인증 관련 API
                                 "/static/**",
+                                "/home",
                                 "/favicon.ico", "/auth",
                                 "/Signup", "/css/**", "/js/**", "/images/**","/home",
                                 "products/**"

@@ -54,6 +54,7 @@ public class CommentService {
                         .content(comment.getContent())
                         .postId(comment.getPost().getId())
                         .createdAt(comment.getCreatedAt())
+                        .authorNickname(comment.getUser().getNickname())
                         .build()).collect(Collectors.toList());
 
     }
