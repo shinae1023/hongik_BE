@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Uploader {
@@ -48,8 +50,10 @@ public class S3Uploader {
 
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
+            log.info("파일이 성공적으로 삭제되었습니다");
             // 파일 삭제 성공 로그
         } else {
+            log.info("파일 삭제 실패");
             // 파일 삭제 실패 로그
         }
     }
