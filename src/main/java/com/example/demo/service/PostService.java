@@ -159,6 +159,38 @@ public class PostService {
                 .map(this::convertToSummaryDto)
                 .collect(Collectors.toList());
     }
+  
+    public List<PostSummaryDto> searchPosts(String title, Category category) {
+        // category 값이 null인지 아닌지에 따라 다른 Repository 메소드를 호출합니다.
+        if (category != null) {
+            // 카테고리가 지정된 경우: 해당 카테고리 내에서 제목으로 검색
+            return postRepository.findByTitleContainingAndCategory(title, category).stream()
+                    .map(this::convertToSummaryDto)
+                    .collect(Collectors.toList());
+        } else {
+            // 카테고리가 지정되지 않은 경우: 전체 게시판에서 제목으로 검색
+            return postRepository.findByTitleContaining(title).stream()
+                    .map(this::convertToSummaryDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Post 엔티티를 PostSummaryDto로 변환하는 헬퍼 메서드
+     */
+    private PostSummaryDto convertToSummaryDto(Post post) {
+        // 첫 번째 이미지를 썸네일로 사용, 이미지가 없으면 null
+        String thumbnailUrl = post.getImages().isEmpty() ? null : post.getImages().get(0).getImageUrl();
+
+        return PostSummaryDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .category(post.getCategory())
+                .authorNickname(post.getUser().getNickname())
+                .thumbnailUrl(thumbnailUrl) // 썸네일 추가
+                .likeCount((long) post.getLikes().size())
+                .build();
+    }
 
     /**
      * Post 엔티티를 PostSummaryDto로 변환하는 헬퍼 메서드

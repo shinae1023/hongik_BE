@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.PostRequestDto;
 import com.example.demo.dto.response.PostResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
+import com.example.demo.entity.Category;
 import com.example.demo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -57,9 +58,13 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsFeed());
     }
 
-    @GetMapping("/search/{title}")
-    public ResponseEntity<List<PostSummaryDto>> getPostsSearch(@PathVariable String title) {
-        return ResponseEntity.ok(postService.getPostsByTitle(title));
-    }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<PostSummaryDto>> searchPosts(
+            @RequestParam String title,
+            @RequestParam(required = false) Category category) { // category를 선택적으로 받도록 변경
+
+        List<PostSummaryDto> results = postService.searchPosts(title, category);
+        return ResponseEntity.ok(results);
+    }
 }
