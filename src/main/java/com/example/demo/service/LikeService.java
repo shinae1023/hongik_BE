@@ -48,6 +48,8 @@ public class LikeService {
                         .category(post.getCategory()) // Post 엔티티에 Category 필드가 있어야 함
                         .title(post.getTitle())
                         .authorNickname(post.getUser().getNickname()) // Post 엔티티에 등록자(User) 필드가 있어야 함
+                        .likeCount((long) post.getLikes().size())
+                        .thumbnailUrl(post.getImages().get(0).getImageUrl())
                         .build())
                 .collect(Collectors.toList());
     }

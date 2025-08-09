@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface FarmRepository extends JpaRepository<Farm, Long> {
     List<Farm> findByTitleContaining(String title);
-    List<Farm> findByUserId(Long userId);
-    List<Farm> findByUserIdAndIsAvailable(Long userId, boolean isAvailable);
+    List<Farm> findByUserUserId(Long userId);
+    List<Farm> findByUserUserIdAndIsAvailable(Long userId, boolean isAvailable);
 }

@@ -40,7 +40,7 @@ public class MypageService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
-        List<Farm> farms = farmRepository.findByUserId(userId);
+        List<Farm> farms = farmRepository.findByUserUserId(userId);
 
         // 3. 조회된 Farm 엔티티 목록을 FarmListDto 목록으로 변환하여 반환
         return farms.stream()
@@ -59,7 +59,7 @@ public class MypageService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
-        List<Farm> farms = farmRepository.findByUserIdAndIsAvailable(userId, false);
+        List<Farm> farms = farmRepository.findByUserUserIdAndIsAvailable(userId, false);
 
         return farms.stream()
                 .map(farm -> FarmListDto.builder()
