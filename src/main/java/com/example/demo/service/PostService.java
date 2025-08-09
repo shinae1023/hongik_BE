@@ -75,7 +75,7 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public PostResponseDto getPost(Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
 
         // 이미지 URL들을 리스트로 변환

@@ -21,7 +21,7 @@ public class PostController {
 
     private final PostService postService;
     // 게시글 생성
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> createPost(
             @RequestPart("dto") PostRequestDto dto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {

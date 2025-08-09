@@ -12,5 +12,4 @@ public class FarmListDto {
     private String rentalPeriod;
     private String address;
     private Boolean isAvailable;
-
 }
