@@ -18,5 +18,5 @@ public class FarmDetailDto {
     private List<String> images;
     private Boolean isAvailable;
     private LocalDateTime createdAt;
-
+    private Integer size;
 }
