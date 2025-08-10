@@ -43,14 +43,22 @@ public class LikeService {
 
         return likes.stream()
                 .map(Like::getPost)
-                .map(post -> PostSummaryDto.builder()
-                        .id(post.getId())
-                        .category(post.getCategory()) // Post 엔티티에 Category 필드가 있어야 함
-                        .title(post.getTitle())
-                        .authorNickname(post.getUser().getNickname()) // Post 엔티티에 등록자(User) 필드가 있어야 함
-                        .likeCount((long) post.getLikes().size())
-                        .thumbnailUrl(post.getImages().get(0).getImageUrl())
-                        .build())
+                .map(post -> {
+                    // Set에서 첫 번째 요소를 안전하게 가져오기 위해 스트림을 사용
+                    String thumbnailUrl = post.getImages().stream()
+                            .findFirst()
+                            .map(image -> image.getImageUrl())
+                            .orElse(null);
+
+                    return PostSummaryDto.builder()
+                            .id(post.getId())
+                            .category(post.getCategory())
+                            .title(post.getTitle())
+                            .authorNickname(post.getUser().getNickname())
+                            .likeCount((long) post.getLikes().size())
+                            .thumbnailUrl(thumbnailUrl) // 수정된 썸네일 URL을 사용
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 }

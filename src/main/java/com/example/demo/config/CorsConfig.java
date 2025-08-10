@@ -16,7 +16,8 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "http://localhost:5173"
+                        .allowedOrigins("http://localhost:3000", "http://localhost:5173",
+                                "https://spacefarm.cloud", "https://spacecloud.shop"
                                 )
                         .allowedMethods("GET", "PUT", "POST", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

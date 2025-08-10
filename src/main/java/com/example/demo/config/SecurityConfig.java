@@ -1,15 +1,14 @@
 package com.example.demo.config;
 
-import org.springframework.http.HttpMethod;
+import com.example.demo.config.jwt.CustomJwtFilter;
 import com.example.demo.config.jwt.JwtAccessDeniedHandler;
 import com.example.demo.config.jwt.JwtAuthenticationEntryPoint;
-import com.example.demo.global.JwtTokenFilter;
 import com.example.demo.service.KakaoOAuth2UserService;
 import com.example.demo.service.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,102 +25,57 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!dev")
 public class SecurityConfig {
 
     private final KakaoOAuth2UserService kakaoOAuth2UserService;
-    private final JwtTokenFilter jwtTokenFilter;
+    private final CustomJwtFilter customJwtFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    /**
-     * Spring Security 필터 체인 설정
-     * 모든 보안 규칙을 정의하는 핵심 메서드
-     *
-     * @param http HttpSecurity 객체
-     * @return SecurityFilterChain 보안 필터 체인
-     * @throws Exception 설정 오류 시
-     */
+
+    // ✅ 1. 공개 경로용 SecurityFilterChain (JWT 필터 없음)
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
-                // === CSRF 보안 설정 ===
-                // REST API에서는 CSRF 공격 위험이 적으므로 비활성화
                 .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers
-                        .frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()) // H2 콘솔 iframe 허용
-                )
-
-                // === CORS 설정 ===
-                // 프론트엔드에서 API 호출 시 필요
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // === 세션 관리 설정 ===
-                // JWT 토큰을 사용하므로 세션을 생성하지 않음
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 이 필터 체인이 적용될 경로 지정
+                .securityMatcher(
+                        "/", "/home", "/login/**", "/oauth2/**", "/h2-console/**",
+                        "/api/auth/**", "/static/**", "/favicon.ico", "/auth", "/Signup",
+                        "/css/**", "/js/**", "/images/**", "/products/**"
                 )
+                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 
-                // 예외 처리 핸들러
+        return http.build();
+    }
+
+    // ✅ 2. 인증이 필요한 API용 SecurityFilterChain (JWT 필터 적용)
+    @Bean
+    @Order(2)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 이 필터 체인이 적용될 경로 지정
+                .securityMatcher("/api/v1/**")
+                .authorizeHttpRequests(authz -> authz.anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
-
-                // === 요청 권한 설정 ===
-                .authorizeHttpRequests(authz -> authz
-                        // 인증 없이 접근 가능한 경로들
-                        .requestMatchers(
-                                "/",                    // 메인 페이지
-                                "/login/**",            // 로그인 관련
-                                "/oauth2/**",          // OAuth2 관련
-                                "/h2-console/**",      // H2 데이터베이스 콘솔
-                                "/api/auth/**",   // 인증 관련 API
-                                "/static/**",
-                                "/home",
-                                "/favicon.ico", "/auth",
-                                "/Signup", "/css/**", "/js/**", "/images/**","/home"
-                        ).permitAll()
-
-                        // --- farm: 공개 (GET) ---
-                        .requestMatchers(HttpMethod.GET, "/farm", "/farm/").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/farm/*").permitAll() // /farm/{farmId}
-
-                        // --- farm: 인증 필요 (작성/북마크) ---
-                        .requestMatchers(HttpMethod.POST, "/farm").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/farm/*/bookmark").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/farm/*/bookmark").authenticated()
-
-
-                        .requestMatchers(
-                                "/api/v1/auth/me",       // 현재 사용자 정보 조회
-                                "/api/v1/auth/validate", // JWT 토큰 검증
-                                "/api/v1/products/**",   // 상품 관련 - 인증 필요
-                                "/api/v1/cart/**"        // 장바구니 관련 - 인증 필요
-                        ).authenticated()
-
-                        // 나머지 모든 요청은 인증 필요
-                        .anyRequest().authenticated()
-                )
-
-                // === OAuth2 로그인 설정 ===
+                // 이 체인에만 JWT 필터를 추가
+                .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                // OAuth2 관련 설정은 필요에 따라 이 체인 또는 다른 체인에 구성할 수 있습니다.
+                // 만약 /api/v1/** 경로 외에 OAuth2가 필요하다면 publicFilterChain에도 추가해야 할 수 있습니다.
                 .oauth2Login(oauth2 -> oauth2
-                        // 로그인 페이지 URL
-                        //.loginPage("/Signup")
-
-                        // 카카오 사용자 정보 처리 서비스
-                        .userInfoEndpoint(userInfo ->
-                                userInfo.userService(kakaoOAuth2UserService)
-                        )
-
-                        // OAuth2 로그인 성공 시 처리 핸들러
+                        .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
-                )
-
-                // === 커스텀 필터 추가 ===
-                // JWT 인증 필터를 Spring Security 필터 체인에 추가
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                );
 
         return http.build();
     }
@@ -131,40 +85,20 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    /**
-     * CORS 설정
-     * 프론트엔드(React, Vue 등)에서 백엔드 API 호출 시 필요
-     *
-     * @return CorsConfigurationSource CORS 설정 소스
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // 허용할 도메인 설정 (개발환경)
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",    // React 개발 서버
-                "http://localhost:8080",     // 같은 서버
-                "http://localhost:5173"
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "https://spacefarm.shop"
         ));
-
-        // 허용할 HTTP 메서드
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
-
-        // 허용할 헤더
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-
-        // 인증 정보 포함 허용 (쿠키, Authorization 헤더 등)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
-
-
 }
