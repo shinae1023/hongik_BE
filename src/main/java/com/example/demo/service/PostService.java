@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public class PostService {
             }
             // Post 엔티티에 이미지 리스트를 설정합니다.
             // CascadeType.ALL 때문에 Post 저장 시 Image도 함께 저장됩니다.
-            post.setImages(imageList);
+            post.setImages(new HashSet<>(imageList));
         }
 
         // 3. Post 엔티티를 저장 (연관된 Image 엔티티들도 함께 저장됨)
@@ -78,7 +79,7 @@ public class PostService {
         Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
 
-        // 이미지 URL들을 리스트로 변환
+        // 이미지 URL들을 리스트로 변환 (Set -> List)
         List<String> imageUrls = post.getImages().stream()
                 .map(Image::getImageUrl)
                 .collect(Collectors.toList());
@@ -159,7 +160,7 @@ public class PostService {
                 .map(this::convertToSummaryDto)
                 .collect(Collectors.toList());
     }
-  
+
     public List<PostSummaryDto> searchPosts(String title, Category category) {
         // category 값이 null인지 아닌지에 따라 다른 Repository 메소드를 호출합니다.
         if (category != null) {
@@ -180,7 +181,11 @@ public class PostService {
      */
     private PostSummaryDto convertToSummaryDto(Post post) {
         // 첫 번째 이미지를 썸네일로 사용, 이미지가 없으면 null
-        String thumbnailUrl = post.getImages().isEmpty() ? null : post.getImages().get(0).getImageUrl();
+        // Set이므로 findFirst()를 사용
+        String thumbnailUrl = post.getImages().stream()
+                .findFirst()
+                .map(Image::getImageUrl)
+                .orElse(null);
 
         return PostSummaryDto.builder()
                 .id(post.getId())
@@ -191,6 +196,4 @@ public class PostService {
                 .likeCount((long) post.getLikes().size())
                 .build();
     }
-
 }
-
