@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import org.springframework.http.HttpMethod;
 import com.example.demo.config.jwt.JwtAccessDeniedHandler;
 import com.example.demo.config.jwt.JwtAuthenticationEntryPoint;
 import com.example.demo.global.JwtTokenFilter;
@@ -80,9 +81,19 @@ public class SecurityConfig {
                                 "/static/**",
                                 "/home",
                                 "/favicon.ico", "/auth",
-                                "/Signup", "/css/**", "/js/**", "/images/**","/home",
-                                "products/**"
+                                "/Signup", "/css/**", "/js/**", "/images/**","/home"
                         ).permitAll()
+
+                        // --- farm: 공개 (GET) ---
+                        .requestMatchers(HttpMethod.GET, "/farm", "/farm/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/farm/*").permitAll() // /farm/{farmId}
+
+                        // --- farm: 인증 필요 (작성/북마크) ---
+                        .requestMatchers(HttpMethod.POST, "/farm").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/farm/*/bookmark").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/farm/*/bookmark").authenticated()
+
+
                         .requestMatchers(
                                 "/api/v1/auth/me",       // 현재 사용자 정보 조회
                                 "/api/v1/auth/validate", // JWT 토큰 검증
