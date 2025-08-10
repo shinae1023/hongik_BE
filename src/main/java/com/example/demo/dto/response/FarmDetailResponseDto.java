@@ -12,17 +12,26 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FarmCreateResponseDto {
+public class FarmDetailResponseDto {
     private Long id;
     private String title;
-    private String description;
     private String address;
+    private Integer size;
     private Integer price;
     private Integer rentalPeriod;
-    private Integer size;
     private String theme;
-    private String bank;
-    private String accountNumber;
+    private String description;
     private List<String> imageUrls;
+    private UserDto owner;
+    private boolean isBookmarked;
     private LocalDateTime createdAt;
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserDto {
+        private Long id;
+        private String nickname;
+    }
 }

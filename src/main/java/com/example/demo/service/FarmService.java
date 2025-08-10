@@ -2,103 +2,179 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.FarmCreateRequestDto;
 import com.example.demo.dto.response.FarmCreateResponseDto;
-import com.example.demo.dto.response.FarmDetailDto;
-import com.example.demo.dto.response.FarmListDto;
-import com.example.demo.dto.response.FarmSearchDto;
+import com.example.demo.dto.response.FarmDetailResponseDto;
+import com.example.demo.dto.response.FarmDto;
+import com.example.demo.dto.response.FarmListResponseDto;
+import com.example.demo.entity.Bookmark;
 import com.example.demo.entity.Farm;
+import com.example.demo.entity.FarmImage;
+import com.example.demo.entity.User;
+import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.repository.BookmarkRepository;
+import com.example.demo.repository.FarmImageRepository;
 import com.example.demo.repository.FarmRepository;
+import com.example.demo.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FarmService {
     private final FarmRepository farmRepository;
+    private final FarmImageRepository farmImageRepository;
+    private final UserRepository userRepository;
+    private final S3Uploader s3Uploader;
+    private final BookmarkRepository bookmarkRepository;
 
-    //텃밭 매물 생성
-    public FarmCreateResponseDto createFarm(FarmCreateRequestDto request) {
+
+    public FarmCreateResponseDto createFarm(
+            FarmCreateRequestDto requestDto,
+            List<MultipartFile> images,
+            Long userId) throws IOException {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
+
         Farm farm = Farm.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .address(request.getAddress())
-                .rentalPeriod(request.getRentalPeriod())
-                .price(request.getPrice())
+                .title(requestDto.getTitle())
+                .description(requestDto.getDescription())
+                .address(requestDto.getAddress())
+                .rentalPeriod(requestDto.getRentalPeriod())
+                .price(requestDto.getPrice())
+                .size(requestDto.getSize())
+                .theme(requestDto.getTheme())
                 .createdAt(LocalDateTime.now())
-                .isAvailable(true)
-                .size(request.getSize())
+                .user(user)
                 .build();
 
-        Farm saved = farmRepository.save(farm);
+        Farm savedFarm = farmRepository.save(farm);
+
+        List<String> uploadedImageUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            List<FarmImage> farmImages = new ArrayList<>();
+            for (MultipartFile imageFile : images) {
+                String imageUrl = s3Uploader.upload(imageFile, "farm-images");
+                uploadedImageUrls.add(imageUrl);
+
+                FarmImage farmImage = FarmImage.of(imageUrl, savedFarm);
+                farmImages.add(farmImage);
+            }
+            farmImages.forEach(savedFarm::addImage);
+            farmImageRepository.saveAll(farmImages);
+        }
 
         return FarmCreateResponseDto.builder()
-                .id(saved.getId())
-                .title(saved.getTitle())
-                .description(saved.getDescription())
-                .address(saved.getAddress())
-                .rentalPeriod(saved.getRentalPeriod())
-                .price(saved.getPrice())
-                .createdAt(saved.getCreatedAt())
-                .isAvailable(saved.getIsAvailable())
-                .size(saved.getSize())
+                .id(savedFarm.getId())
+                .title(savedFarm.getTitle())
+                .description(savedFarm.getDescription())
+                .address(savedFarm.getAddress())
+                .rentalPeriod(savedFarm.getRentalPeriod())
+                .price(savedFarm.getPrice())
+                .size(savedFarm.getSize())
+                .theme(savedFarm.getTheme())
+                .imageUrls(uploadedImageUrls)
+                .bank(requestDto.getBank())
+                .accountNumber(requestDto.getAccountNumber())
+                .createdAt(savedFarm.getCreatedAt())
                 .build();
     }
 
-    // 전체 목록 조회
-    public List<FarmListDto> getAllFarms() {
-        return farmRepository.findAll().stream()
-                .map(this::toListDto)
+    public FarmListResponseDto getAllFarms(Long userId) {
+        List<Farm> farms = farmRepository.findAll();
+
+        List<FarmDto> farmDtos = farms.stream()
+                .map(farm -> toFarmDto(farm, userId))
                 .collect(Collectors.toList());
+
+        return FarmListResponseDto.builder()
+                .message("모든 텃밭 매물 목록입니다.")
+                .farms(farmDtos)
+                .build();
     }
 
-    // 상세 조회
-    public FarmDetailDto getFarmDetail(Long farmId) {
-        Farm farm = farmRepository.findById(farmId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 텃밭입니다."));
+    public FarmDetailResponseDto getFarmDetail(String farmId, Long userId) {
+        Farm farm = farmRepository.findById(Long.parseLong(farmId))
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 텃밭입니다. (ID: " + farmId + ")"));
 
-        return FarmDetailDto.builder()
+        boolean isBookmarked = false;
+        if (userId != null) {
+            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
+        }
+
+        return FarmDetailResponseDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .description(farm.getDescription())
                 .address(farm.getAddress())
                 .rentalPeriod(farm.getRentalPeriod())
                 .price(farm.getPrice())
-                .isAvailable(farm.getIsAvailable())
-                .createdAt(farm.getCreatedAt())
                 .size(farm.getSize())
+                .imageUrls(farm.getImages().stream()
+                        .map(FarmImage::getImageUrl)
+                        .collect(Collectors.toList()))
+                .owner(FarmDetailResponseDto.UserDto.builder()
+                        .id(farm.getUser().getUserId())
+                        .nickname(farm.getUser().getNickname())
+                        .build())
+                .isBookmarked(isBookmarked)
+                .createdAt(farm.getCreatedAt())
                 .build();
     }
 
-    // 검색
-    public List<FarmSearchDto> searchByTitle(String title) {
-        return farmRepository.findByTitleContaining(title).stream()
-                .map(this::toSearchDto)
-                .collect(Collectors.toList());
-    }
 
-    private FarmListDto toListDto(Farm farm) {
-        return FarmListDto.builder()
+    private FarmDto toFarmDto(Farm farm, Long currentUserId) {
+        boolean isBookmarked = false;
+        if (currentUserId != null) {
+            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
+        }
+
+        return FarmDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .price(farm.getPrice())
                 .rentalPeriod(farm.getRentalPeriod())
                 .address(farm.getAddress())
-                .isAvailable(farm.getIsAvailable())
                 .size(farm.getSize())
+                .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
+                .isBookmarked(isBookmarked)
                 .build();
     }
 
-    private FarmSearchDto toSearchDto(Farm farm) {
-        return FarmSearchDto.builder()
-                .id(farm.getId())
-                .title(farm.getTitle())
-                .address(farm.getAddress())
-                .isAvailable(farm.getIsAvailable())
-                .size(farm.getSize())
-                .build();
+    @Transactional
+    public void addBookmark(String farmId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
+        Farm farm = farmRepository.findById(Long.parseLong(farmId))
+                .orElseThrow(() -> new EntityNotFoundException("텃밭을 찾을 수 없습니다. (ID: " + farmId + ")"));
+
+        if (bookmarkRepository.existsByUserAndFarm(user, farm)) {
+            throw new IllegalArgumentException("이미 북마크된 텃밭입니다.");
+        }
+
+        Bookmark bookmark = Bookmark.createBookmark(user, farm);
+        bookmarkRepository.save(bookmark);
     }
 
+    @Transactional
+    public void removeBookmark(String farmId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
+        Farm farm = farmRepository.findById(Long.parseLong(farmId))
+                .orElseThrow(() -> new EntityNotFoundException("텃밭을 찾을 수 없습니다. (ID: " + farmId + ")"));
+
+        Bookmark bookmark = bookmarkRepository.findByUserAndFarm(user, farm)
+                .orElseThrow(() -> new EntityNotFoundException("해당 텃밭은 북마크되어 있지 않습니다."));
+
+        bookmarkRepository.delete(bookmark);
+    }
 }

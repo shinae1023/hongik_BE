@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final KakaoOAuth2UserService kakaoOAuth2UserService;
     private final CustomJwtFilter customJwtFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 

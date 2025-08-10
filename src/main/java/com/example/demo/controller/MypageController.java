@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.response.FarmListDto;
+import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.security.UserInfo;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -34,14 +33,14 @@ public class MypageController {
 
     //등록한 모든 텃밭 조회
     @GetMapping("/farm")
-    public ResponseEntity<List<FarmListDto>> getFarms(@AuthenticationPrincipal UserInfo user) {
+    public ResponseEntity<FarmListResponseDto> getFarms(@AuthenticationPrincipal UserInfo user) {
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.getMyFarms(userId));
     }
 
     //등록한 매물 중 대여중인 텃밭
     @GetMapping("/farm/used")
-    public ResponseEntity<List<FarmListDto>> getFarmsUsed(@AuthenticationPrincipal UserInfo user) {
+    public ResponseEntity<FarmListResponseDto> getFarmsUsed(@AuthenticationPrincipal UserInfo user) {
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.getFarmsUsed(userId));
     }

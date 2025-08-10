@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,34 +26,29 @@ public class Farm {
     @Column(nullable = false)
     private String address;
 
-    private String rentalPeriod;
+    private Integer rentalPeriod;
 
     private Integer price;
 
-    private Boolean isAvailable;
+    private Integer size;
 
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id")
-    private User provider;
+    private String theme;
+
+    @Column(nullable = false)
+    private boolean isAvailable = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user; //텃밭 등록자 (판매자)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private Integer size;
+    @OneToMany(mappedBy = "farm", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<FarmImage> images = new ArrayList<>();
 
-    @Builder
-    public Farm(String title, String description, String address, String rentalPeriod, Integer price,
-                boolean isAvailable, LocalDateTime createdAt, User user, Integer size) {
-        this.title = title;
-        this.description = description;
-        this.address = address;
-        this.rentalPeriod = rentalPeriod;
-        this.price = price;
-        this.isAvailable = isAvailable;
-        this.createdAt = createdAt;
-        this.user = user;
-        this.size = size;
+    public void addImage(FarmImage image) {
+        this.images.add(image);
+        image.setFarm(this);
     }
 }
