@@ -40,9 +40,11 @@ public class Farm {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user; //텃밭 등록자 (판매자)
 
+    private Integer size;
+
     @Builder
     public Farm(String title, String description, String address, String rentalPeriod, Integer price,
-                boolean isAvailable, LocalDateTime createdAt, User user) {
+                boolean isAvailable, LocalDateTime createdAt, User user, Integer size) {
         this.title = title;
         this.description = description;
         this.address = address;
@@ -51,5 +53,6 @@ public class Farm {
         this.isAvailable = isAvailable;
         this.createdAt = createdAt;
         this.user = user;
+        this.size = size;
     }
 }

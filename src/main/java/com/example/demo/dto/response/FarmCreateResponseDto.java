@@ -16,4 +16,5 @@ public class FarmCreateResponseDto {
     private Integer price;
     private LocalDateTime createdAt;
     private Boolean isAvailable;
+    private Integer size;
 }

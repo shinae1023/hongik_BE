@@ -29,6 +29,7 @@ public class FarmService {
                 .price(request.getPrice())
                 .createdAt(LocalDateTime.now())
                 .isAvailable(true)
+                .size(request.getSize())
                 .build();
 
         Farm saved = farmRepository.save(farm);
@@ -42,6 +43,7 @@ public class FarmService {
                 .price(saved.getPrice())
                 .createdAt(saved.getCreatedAt())
                 .isAvailable(saved.getIsAvailable())
+                .size(saved.getSize())
                 .build();
     }
 
@@ -66,6 +68,7 @@ public class FarmService {
                 .price(farm.getPrice())
                 .isAvailable(farm.getIsAvailable())
                 .createdAt(farm.getCreatedAt())
+                .size(farm.getSize())
                 .build();
     }
 
@@ -84,6 +87,7 @@ public class FarmService {
                 .rentalPeriod(farm.getRentalPeriod())
                 .address(farm.getAddress())
                 .isAvailable(farm.getIsAvailable())
+                .size(farm.getSize())
                 .build();
     }
 
@@ -93,6 +97,7 @@ public class FarmService {
                 .title(farm.getTitle())
                 .address(farm.getAddress())
                 .isAvailable(farm.getIsAvailable())
+                .size(farm.getSize())
                 .build();
     }
 

@@ -9,4 +9,5 @@ public class FarmCreateRequestDto {
     private String address;
     private String rentalPeriod;
     private Integer price;
+    private Integer size;
 }
