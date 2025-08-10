@@ -2,14 +2,19 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.FarmCreateRequestDto;
 import com.example.demo.dto.response.FarmCreateResponseDto;
-import com.example.demo.dto.response.FarmDetailDto;
-import com.example.demo.dto.response.FarmListDto;
-import com.example.demo.dto.response.FarmSearchDto;
+import com.example.demo.dto.response.FarmDetailResponseDto;
+import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.service.FarmService;
+import com.example.demo.security.UserInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,26 +23,52 @@ import java.util.List;
 public class FarmController {
     private final FarmService farmService;
 
-    @PostMapping
-    public ResponseEntity<FarmCreateResponseDto> createFarm(@RequestBody FarmCreateRequestDto requestDto) {
-        return ResponseEntity.ok(farmService.createFarm(requestDto));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FarmCreateResponseDto> createFarm(
+            @RequestPart("dto") FarmCreateRequestDto requestDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @AuthenticationPrincipal UserInfo user) throws IOException {
+
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.status(HttpStatus.CREATED).body(farmService.createFarm(requestDto, images, userId));
     }
 
-    // 전체 목록 조회
     @GetMapping
-    public ResponseEntity<List<FarmListDto>> getAllFarms() {
-        return ResponseEntity.ok(farmService.getAllFarms());
+    public ResponseEntity<FarmListResponseDto> getAllFarms(
+            @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = (user != null && user.getUser() != null) ? user.getUser().getUserId() : null;
+
+        return ResponseEntity.ok(farmService.getAllFarms(userId));
     }
 
-    // 개별 상세 조회
     @GetMapping("/{farmId}")
-    public ResponseEntity<FarmDetailDto> getFarm(@PathVariable Long farmId) {
-        return ResponseEntity.ok(farmService.getFarmDetail(farmId));
+    public ResponseEntity<FarmDetailResponseDto> getFarmDetail(
+                                                                @PathVariable String farmId,
+                                                                @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = (user != null && user.getUser() != null) ? user.getUser().getUserId() : null;
+
+        return ResponseEntity.ok(farmService.getFarmDetail(farmId, userId));
     }
 
-    // 제목 기반 검색
-    @GetMapping(params = "title") // /farm?title=강남
-    public ResponseEntity<List<FarmSearchDto>> searchByTitle(@RequestParam String title) {
-        return ResponseEntity.ok(farmService.searchByTitle(title));
+    @PostMapping("/{farmId}/bookmark")
+    public ResponseEntity<Void> bookmarkFarm(
+            @PathVariable String farmId,
+            @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = user.getUser().getUserId();
+        farmService.addBookmark(farmId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{farmId}/bookmark")
+    public ResponseEntity<Void> unbookmarkFarm(
+            @PathVariable String farmId,
+            @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = user.getUser().getUserId();
+        farmService.removeBookmark(farmId, userId);
+        return ResponseEntity.noContent().build();
     }
 }
