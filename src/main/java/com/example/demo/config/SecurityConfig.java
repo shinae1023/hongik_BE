@@ -40,13 +40,18 @@ public class SecurityConfig {
     public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                                .frameOptions(frameOptions -> frameOptions.disable()) // h2-console 등을 위해 disable하거나
+                        // .frameOptions(frameOptions -> frameOptions.sameOrigin()) // 혹은 sameOrigin()으로 설정
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
                 .securityMatcher(
                         "/", "/home", "/login/**", "/oauth2/**", "/h2-console/**",
                         "/api/auth/**", "/static/**", "/favicon.ico", "/auth", "/Signup",
-                        "/css/**", "/js/**", "/images/**", "/products/**"
+                        "/css/**", "/js/**", "/images/**", "/products/**", "/ws-chat/**",
+                        "/api/chat/**", "/ws-chat"
                 )
                 .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 
@@ -91,11 +96,18 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://spacefarm.shop"
+                "https://spacefarm.shop",
+                "http://localhost:8080",
+                "https://jiangxy.github.io"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+
+        // WebSocket 관련 헤더 추가
+        configuration.addExposedHeader("Sec-WebSocket-Accept");
+        configuration.addExposedHeader("Sec-WebSocket-Extensions");
+        configuration.addExposedHeader("Sec-WebSocket-Protocol");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

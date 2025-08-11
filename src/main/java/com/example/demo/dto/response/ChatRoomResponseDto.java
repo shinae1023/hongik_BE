@@ -15,6 +15,10 @@ public class ChatRoomResponseDto {
     private UserInfo consumer;
     private LocalDateTime createdAt;
 
+    private String lastMessage;
+    private LocalDateTime lastMessageAt;
+    private int unreadCount;
+
     @Getter
     @Builder
     public static class FarmInfo {

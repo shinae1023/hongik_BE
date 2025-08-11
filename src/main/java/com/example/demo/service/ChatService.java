@@ -1,0 +1,162 @@
+package com.example.demo.service;
+
+import com.example.demo.dto.response.ChatMessageDto;
+import com.example.demo.dto.response.ChatRoomResponseDto;
+import com.example.demo.entity.*;
+import com.example.demo.repository.ChatMessageRepository;
+import com.example.demo.repository.ChatRoomRepository;
+import com.example.demo.repository.FarmRepository;
+import com.example.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ChatService {
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
+    private final FarmRepository farmRepository;
+
+    /**
+     * 채팅방 생성 또는 기존 채팅방 반환
+     */
+    @Transactional
+    public ChatRoom getOrCreateChatRoom(Long consumerId, Long providerId, Long farmId) {
+        User consumer = userRepository.findById(consumerId)
+                .orElseThrow(() -> new IllegalArgumentException("구매자를 찾을 수 없습니다."));
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new IllegalArgumentException("텃밭을 찾을 수 없습니다."));
+
+        // 기존 채팅방 확인
+        return chatRoomRepository.findChatRoomByUsersAndFarm(consumerId, providerId, farmId)
+                .orElseGet(() -> {
+                    ChatRoom newChatRoom = ChatRoom.builder()
+                            .consumer(consumer)
+                            .provider(provider)
+                            .farm(farm)
+                            .build();
+                    return chatRoomRepository.save(newChatRoom);
+                });
+    }
+
+    /**
+     * 사용자의 채팅방 목록 조회
+     */
+    public List<ChatRoomResponseDto> getChatRoomList(Long userId) {
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserIdWithDetails(userId);
+
+        return chatRooms.stream()
+                .map(chatRoom -> convertToChatRoomResponseDto(chatRoom, userId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 메시지 전송
+     */
+    @Transactional
+    public ChatMessage sendMessage(Long chatRoomId, Long senderId, String messageContent) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("발신자를 찾을 수 없습니다."));
+
+        // 메시지 생성
+        ChatMessage message = ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .message(messageContent)
+                .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        // 채팅방 정보 업데이트
+        chatRoom.updateOnNewMessage(messageContent, savedMessage.getCreatedAt(), sender);
+        chatRoomRepository.save(chatRoom);
+
+        return savedMessage;
+    }
+
+    /**
+     * 채팅방의 메시지 목록 조회
+     */
+    public Slice<ChatMessage> getChatMessages(Long chatRoomId, Pageable pageable) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtDesc(chatRoomId, pageable);
+    }
+
+    /**
+     * 안읽은 메시지 수 초기화
+     */
+    @Transactional
+    public void markMessagesAsRead(Long chatRoomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        // 구매자가 읽음 처리
+        if (chatRoom.getConsumer().getUserId().equals(userId)) {
+            chatRoom.resetConsumerUnreadCount();
+        }
+        // 판매자가 읽음 처리
+        else if (chatRoom.getProvider().getUserId().equals(userId)) {
+            chatRoom.resetProviderUnreadCount();
+        }
+
+        chatRoomRepository.save(chatRoom);
+    }
+
+    /**
+     * ChatRoom을 ChatRoomResponseDto로 변환
+     */
+    private ChatRoomResponseDto convertToChatRoomResponseDto(ChatRoom chatRoom, Long currentUserId) {
+        // 현재 사용자의 안읽은 메시지 수 계산
+        int unreadCount = 0;
+        if (chatRoom.getConsumer().getUserId().equals(currentUserId)) {
+            unreadCount = chatRoom.getConsumerUnreadCount();
+        } else if (chatRoom.getProvider().getUserId().equals(currentUserId)) {
+            unreadCount = chatRoom.getProviderUnreadCount();
+        }
+
+        String thumbnailUrl = chatRoom.getFarm().getImages().stream()
+                .findFirst()
+                .map(FarmImage::getImageUrl)
+                .orElse(null);
+
+        return ChatRoomResponseDto.builder()
+                .chatroomId(chatRoom.getId())
+                .farm(ChatRoomResponseDto.FarmInfo.builder()
+                        .id(chatRoom.getFarm().getId())
+                        .title(chatRoom.getFarm().getTitle())
+                        .price(chatRoom.getFarm().getPrice())
+                        .thumbnailUrl(thumbnailUrl)
+                        .build())
+                .provider(ChatRoomResponseDto.UserInfo.builder()
+                        .id(chatRoom.getProvider().getUserId())
+                        .nickname(chatRoom.getProvider().getNickname())
+                        .profileImage(chatRoom.getProvider().getProfileImage())
+                        .build())
+                .consumer(ChatRoomResponseDto.UserInfo.builder()
+                        .id(chatRoom.getConsumer().getUserId())
+                        .nickname(chatRoom.getConsumer().getNickname())
+                        .profileImage(chatRoom.getConsumer().getProfileImage())
+                        .build())
+                .createdAt(chatRoom.getCreatedAt())
+                .lastMessage(chatRoom.getLastMessage())
+                .lastMessageAt(chatRoom.getLastMessageAt())
+                .unreadCount(unreadCount)
+                .build();
+    }
+}
