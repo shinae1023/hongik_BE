@@ -5,6 +5,7 @@ import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailResponseDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.FarmSearchResponseDto;
+import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.service.FarmService;
 import com.example.demo.security.UserInfo;
 import lombok.RequiredArgsConstructor;
@@ -55,26 +56,14 @@ public class FarmController {
     }
     
     @GetMapping("/all")
-    public ResponseEntity<FarmListResponseDto> getAllFarms(
+    public ResponseEntity<MainPageResponseDto> getAllFarms(
             @AuthenticationPrincipal UserInfo user) {
 
         Long userId = (user != null && user.getUser() != null) ? user.getUser().getUserId() : null;
 
-        return ResponseEntity.ok(farmService.getAllFarms(userId));
+        return ResponseEntity.ok(farmService.getMainPageFarms(userId));
     }
     
-    @GetMapping("/recommended")
-    public ResponseEntity<FarmSearchResponseDto> getRecommendations(
-            @RequestParam(required = false, defaultValue = "10") Integer limit,
-            @AuthenticationPrincipal UserInfo user) {
-
-        if (user == null || user.getUser() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        Long userId = user.getUser().getUserId();
-        return ResponseEntity.ok(farmService.getRecommendedFarms(userId, limit));
-    }
 
     @GetMapping("/{farmId}")
     public ResponseEntity<FarmDetailResponseDto> getFarmDetail(

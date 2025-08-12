@@ -6,6 +6,7 @@ import com.example.demo.dto.response.FarmDetailResponseDto;
 import com.example.demo.dto.response.FarmDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.FarmSearchResponseDto;
+import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.entity.Bookmark;
 import com.example.demo.entity.Farm;
 import com.example.demo.entity.FarmImage;
@@ -103,6 +104,30 @@ public class FarmService {
                 .message("모든 텃밭 매물 목록입니다.")
                 .farms(farmDtos)
                 .build();
+    }
+
+    public MainPageResponseDto getMainPageFarms(Long userId) {
+        List<Farm> allFarms = farmRepository.findAll();
+        List<FarmDto> farmDtos = allFarms.stream()
+                .map(farm -> toFarmDto(farm, userId))
+                .collect(Collectors.toList());
+
+        if (userId == null) {
+            return MainPageResponseDto.builder()
+                    .message("모든 텃밭 매물 목록입니다.")
+                    .farms(farmDtos)
+                    .recommendedFarms(null)
+                    .build();
+        } else {
+            FarmSearchResponseDto recommendedResponse = getRecommendedFarms(userId, 10);
+            List<FarmDto> recommendedFarms = recommendedResponse.getFarms();
+
+            return MainPageResponseDto.builder()
+                    .message("메인 페이지 정보입니다.")
+                    .farms(farmDtos)
+                    .recommendedFarms(recommendedFarms)
+                    .build();
+        }
     }
 
     public FarmDetailResponseDto getFarmDetail(String farmId, Long userId) {
