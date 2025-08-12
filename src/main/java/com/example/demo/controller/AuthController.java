@@ -21,7 +21,7 @@ public class AuthController {
     private final UserSignupService userSignupService;
     private final UserLoginService userLoginService;
 
-    @PostMapping("/signup")
+    @PostMapping("/signup1")
     public ResponseEntity<String> signup(@RequestBody @Valid RequestSignup request) {
         userSignupService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 완료");
