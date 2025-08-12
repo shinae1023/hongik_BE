@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/onboarding")
+@RequestMapping("/api/auth")
 @Validated
 public class OnboardingController {
     private final OnboardingService onboardingService;
@@ -23,7 +23,7 @@ public class OnboardingController {
         this.onboardingService = onboardingService;
     }
 
-    @PostMapping
+    @PostMapping("/signup2")
     public ResponseEntity<Map<String, String>> addOnboardingInfo(
             @AuthenticationPrincipal UserInfo userInfo,
             @Validated @RequestBody OnboardingRequestDto request) {
