@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmCreateResponseDto {
+    private Long userId;
     private Long id;
     private String title;
     private String description;

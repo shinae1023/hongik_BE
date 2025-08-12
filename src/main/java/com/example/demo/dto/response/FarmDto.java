@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmDto {
+    private Long userId;
     private Long id;
     private String title;
     private String address;
@@ -18,4 +19,5 @@ public class FarmDto {
     private Integer size;
     private String thumbnailUrl;
     private boolean isBookmarked;
+    private String theme;
 }

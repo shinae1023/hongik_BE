@@ -151,7 +151,7 @@ public class FarmService {
                         .map(FarmImage::getImageUrl)
                         .collect(Collectors.toList()))
                 .owner(FarmDetailResponseDto.UserDto.builder()
-                        .id(farm.getUser().getUserId())
+                        .userId(farm.getUser().getUserId())
                         .nickname(farm.getUser().getNickname())
                         .build())
                 .isBookmarked(isBookmarked)
@@ -175,6 +175,7 @@ public class FarmService {
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
                 .isBookmarked(isBookmarked)
+                .theme(farm.getTheme())
                 .build();
     }
 
