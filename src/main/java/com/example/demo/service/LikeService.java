@@ -6,6 +6,7 @@ import com.example.demo.repository.*;
 import com.example.demo.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -19,7 +20,12 @@ public class LikeService {
     private final UserRepository userRepository;
 
     //좋아요 생성
+    @Transactional
     public Long createLike(@PathVariable Long postId, Long userId) {
+
+        if (likeRepository.findByUser_UserIdAndPostId(userId, postId).isPresent()) {
+            throw new IllegalStateException("이미 좋아요를 누른 게시물입니다.");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
@@ -32,6 +38,15 @@ public class LikeService {
                 .build();
 
         return likeRepository.save(like).getId();
+    }
+
+    //좋아요 삭제
+    @Transactional
+    public void deleteLike(@PathVariable Long postId, Long userId) {
+        Like like = likeRepository.findByUser_UserIdAndPostId(userId, postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 좋아요를 찾을 수 없습니다."));
+
+        likeRepository.delete(like);
     }
 
     //좋아요로 post 조회
