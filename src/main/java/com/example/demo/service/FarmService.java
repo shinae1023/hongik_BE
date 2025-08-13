@@ -228,9 +228,9 @@ public class FarmService {
 
     public FarmSearchResponseDto searchFarmsWithFilters(String location, Integer minPrice, Integer maxPrice,
                                                        Integer minSize, Integer maxSize, String theme, Long userId) {
-        
+
         List<Farm> farms = farmRepository.findFarmsWithBasicFilters(minPrice, maxPrice, minSize, maxSize);
-        
+
         if (location != null && !location.trim().isEmpty()) {
             List<String> locations = parseCommaSeparatedValues(location);
             farms = farms.stream()
@@ -238,12 +238,12 @@ public class FarmService {
                             .anyMatch(loc -> farm.getAddress().toLowerCase().contains(loc.toLowerCase())))
                     .collect(Collectors.toList());
         }
-        
+
         if (theme != null && !theme.trim().isEmpty()) {
             List<String> themes = parseCommaSeparatedValues(theme);
             farms = farms.stream()
                     .filter(farm -> themes.stream()
-                            .anyMatch(t -> farm.getTheme() != null && farm.getTheme().toLowerCase().equals(t.toLowerCase())))
+                            .anyMatch(t -> farm.getTheme() != null && farm.getTheme().name().toLowerCase().equals(t.toLowerCase())))
                     .collect(Collectors.toList());
         }
 
@@ -265,24 +265,24 @@ public class FarmService {
     }
 
     public FarmSearchResponseDto getRecommendedFarms(Long userId, Integer limit) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
 
         List<Farm> recommendedFarms = new ArrayList<>();
 
-        if (user.getAddressSido() != null && user.getAddressSigungu() != null && user.getAddressDong() != null) {
-            List<Farm> locationBasedFarms = farmRepository.findByUserLocation(
-                    user.getAddressSido(), user.getAddressSigungu(), user.getAddressDong()
-            );
-            recommendedFarms.addAll(locationBasedFarms);
+        if (user.getPreferredDong() != null && !user.getPreferredDong().isEmpty()) {
+            List<Farm> locationBasedFarms = farmRepository.findByAddressContainingIgnoreCase(user.getPreferredDong());
+            for (Farm farm : locationBasedFarms) {
+                if (!recommendedFarms.contains(farm)) {
+                    recommendedFarms.add(farm);
+                }
+            }
         }
 
         if (!user.getPreferredThemes().isEmpty()) {
-            List<String> themeNames = user.getPreferredThemes().stream()
-                    .map(Theme::name)
-                    .collect(Collectors.toList());
-            List<Farm> themeBasedFarms = farmRepository.findByThemeIn(themeNames);
-            
+            List<Theme> preferredThemes = new ArrayList<>(user.getPreferredThemes()); // Set을 List로 변환
+            List<Farm> themeBasedFarms = farmRepository.findByThemeIn(preferredThemes);
+
             for (Farm farm : themeBasedFarms) {
                 if (!recommendedFarms.contains(farm)) {
                     recommendedFarms.add(farm);

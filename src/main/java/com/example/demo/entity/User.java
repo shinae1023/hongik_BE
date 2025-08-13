@@ -39,12 +39,8 @@ public class User extends BaseEntity {
     private String bank;
 
     private String address;
-    @Column(name = "address_sido")
-    private String addressSido;
-    @Column(name = "address_sigungu")
-    private String addressSigungu;
-    @Column(name = "address_dong")
-    private String addressDong;
+
+    private String preferredDong;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -64,12 +60,8 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
-    public void updateOnboardingInfo(String sido, String sigungu, String dong, Set<Theme> themes) {
-        this.addressSido = sido;
-        this.addressSigungu = sigungu;
-        this.addressDong = dong;
-
-        this.address = String.format("%s %s %s", sido, sigungu, dong);
+    public void updateOnboardingInfo(String preferredDong, Set<Theme> themes) {
+        this.preferredDong=preferredDong;
         this.preferredThemes.clear();
         this.preferredThemes.addAll(themes);
     }
@@ -81,14 +73,7 @@ public class User extends BaseEntity {
         this.phone = dto.getPhoneNumber();
         this.bank = dto.getBank();
         this.accountNumber = dto.getAccountNumber();
-        this.addressSido = dto.getAddressSido();
-        this.addressSigungu = dto.getAddressSigungu();
-        this.addressDong = dto.getAddressDong();
-
-        // 주소 정보가 하나라도 있으면 전체 주소 문자열 업데이트
-        if (dto.getAddressSido() != null || dto.getAddressSigungu() != null || dto.getAddressDong() != null) {
-            this.address = String.format("%s %s %s", dto.getAddressSido(), dto.getAddressSigungu(), dto.getAddressDong()).trim();
-        }
+        this.preferredDong = dto.getPreferredDong();
 
         // 선호 테마 업데이트
         if (dto.getPreferredThemes() != null) {
