@@ -114,8 +114,7 @@ public class MypageService {
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
                 .phoneNumber(user.getPhone())
-                .addressSigungu(user.getAddressSigungu())
-                .addressDong(user.getAddressDong())
+                .addressDong(user.getPreferredDong())
                 .preferredThemes(user.getPreferredThemes())
                 .build();
     }

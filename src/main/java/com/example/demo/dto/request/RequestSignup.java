@@ -32,8 +32,10 @@ public class RequestSignup {
     @NotBlank @Pattern(regexp="^\\d{2,3}-\\d{3,4}-\\d{4}$")
     private String phone;
 
+    @NotBlank
     private String bank;
 
+    @NotBlank
     private String accountNumber;
 
     @AssertTrue(message = "비밀번호와 비밀번호 확인이 일치하지 않습니다.")

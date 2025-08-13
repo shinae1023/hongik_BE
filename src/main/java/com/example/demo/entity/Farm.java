@@ -35,7 +35,8 @@ public class Farm {
 
     private LocalDateTime createdAt;
 
-    private String theme;
+    @Enumerated(EnumType.STRING)
+    private Theme theme;
 
     @Column(nullable = false)
     private boolean isAvailable = true;

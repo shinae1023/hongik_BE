@@ -19,8 +19,6 @@ public class UserUpdateRequestDto {
     private String phoneNumber;
     private String bank;
     private String accountNumber;
-    private String addressSido;
-    private String addressSigungu;
-    private String addressDong;
+    private String preferredDong;
     private Set<Theme> preferredThemes;
 }

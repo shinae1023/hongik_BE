@@ -20,13 +20,11 @@ public class OnboardingService {
 
     @Transactional
     public void saveOnboardingInfo(User principalUser, OnboardingRequestDto request) {
-        User user = userRepository.findById(principalUser.getUserId())
+        User user = userRepository.findByUserId(principalUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + principalUser.getUserId()));
 
         user.updateOnboardingInfo(
-                request.getAddress().getSido(),
-                request.getAddress().getSigungu(),
-                request.getAddress().getDong(),
+                request.getPreferredDong(),
                 new HashSet<>(request.getThemes())
         );
 
