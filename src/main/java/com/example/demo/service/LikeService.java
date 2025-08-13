@@ -19,8 +19,8 @@ public class LikeService {
     private final UserRepository userRepository;
 
     //좋아요 생성
-    public Long createLike(@PathVariable Long postId, LikeRequestDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+    public Long createLike(@PathVariable Long postId, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         Post post = postRepository.findById(postId)

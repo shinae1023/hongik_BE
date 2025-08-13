@@ -4,10 +4,12 @@ import com.example.demo.dto.request.PostRequestDto;
 import com.example.demo.dto.response.PostResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
 import com.example.demo.entity.Category;
+import com.example.demo.security.UserInfo;
 import com.example.demo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,10 +24,10 @@ public class PostController {
     private final PostService postService;
     // 게시글 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> createPost(
+    public ResponseEntity<Long> createPost(@AuthenticationPrincipal UserInfo user,
             @RequestPart("dto") PostRequestDto dto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
-
+        dto.setUserId(user.getUser().getUserId());
         return ResponseEntity.status(201).body(postService.createPost(dto, images));
     }
 

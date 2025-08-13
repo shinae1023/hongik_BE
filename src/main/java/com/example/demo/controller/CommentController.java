@@ -2,9 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.CommentRequestDto;
 import com.example.demo.dto.response.CommentResponseDto;
+import com.example.demo.security.UserInfo;
 import com.example.demo.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +19,8 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping("/{postId}")
-    public ResponseEntity<Long> createComment(@PathVariable Long postId, @RequestBody CommentRequestDto dto) {
+    public ResponseEntity<Long> createComment(@AuthenticationPrincipal UserInfo user, @PathVariable Long postId, @RequestBody CommentRequestDto dto) {
+        dto.setUserId(user.getUser().getUserId());
         return ResponseEntity.status(201).body(commentService.createComment(postId,dto));
     }
 
