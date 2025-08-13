@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.Farm;
+import com.example.demo.entity.Theme;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,6 +35,8 @@ public interface FarmRepository extends JpaRepository<Farm, Long>{
     List<Farm> findByUserLocation(@Param("addressSido") String addressSido,
                                  @Param("addressSigungu") String addressSigungu,
                                  @Param("addressDong") String addressDong);
-                                 
-    List<Farm> findByThemeIn(List<String> themes);
+
+    List<Farm> findByAddressContainingIgnoreCase(String preferredDong);
+
+    List<Farm> findByThemeIn(List<Theme> themes);
 }
