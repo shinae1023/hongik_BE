@@ -15,7 +15,8 @@ import java.util.Set;
 public class UserUpdateRequestDto {
     private String nickname;
     private String profileImage;
-    private String phone;
+    private String address;
+    private String phoneNumber;
     private String bank;
     private String accountNumber;
     private String addressSido;

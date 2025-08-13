@@ -78,7 +78,7 @@ public class User extends BaseEntity {
     public void updateMypageInfo(UserUpdateRequestDto dto) {
         this.nickname = dto.getNickname();
         this.profileImage = dto.getProfileImage();
-        this.phone = dto.getPhone();
+        this.phone = dto.getPhoneNumber();
         this.bank = dto.getBank();
         this.accountNumber = dto.getAccountNumber();
         this.addressSido = dto.getAddressSido();
@@ -95,4 +95,9 @@ public class User extends BaseEntity {
             this.preferredThemes.clear();
             this.preferredThemes.addAll(dto.getPreferredThemes());
         }
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

@@ -21,7 +21,6 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
 
-    //마이페이지 사용자 정보
     @Transactional(readOnly = true)
     public UserResponseDto getUsers(Long userId) {
         User user = userRepository.findById(userId)
@@ -35,7 +34,6 @@ public class ProfileService {
                 .build();
     }
 
-    //내가 등록한 모든 매물 조회
     @Transactional(readOnly = true)
     public FarmListResponseDto getMyFarms(Long userId) {
         User user = userRepository.findById(userId)

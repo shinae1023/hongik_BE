@@ -12,7 +12,9 @@ import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class MypageService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
+    private final S3Uploader s3Uploader;
 
     //마이페이지 사용자 정보
     @Transactional(readOnly = true)
@@ -35,6 +38,7 @@ public class MypageService {
                 .ecoScore(user.getEcoScore())
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
+                .phoneNumber(user.getPhone())
                 .build();
     }
 
@@ -109,6 +113,36 @@ public class MypageService {
                 .ecoScore(user.getEcoScore())
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
+                .phoneNumber(user.getPhone())
+                .addressSigungu(user.getAddressSigungu())
+                .addressDong(user.getAddressDong())
+                .preferredThemes(user.getPreferredThemes())
                 .build();
+    }
+
+    //프로필 사진 등록
+    @Transactional
+    public String updateUserProfileImage(Long userId, MultipartFile profileImage)  {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+        try {
+            // 기존 프로필 이미지가 있는 경우 S3에서 삭제
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                s3Uploader.deleteFile(user.getProfileImage());
+            }
+
+            // 새 프로필 이미지를 S3에 업로드
+            String imageUrl = s3Uploader.upload(profileImage, "profile"); // "profile"은 S3 버킷 내의 폴더명
+
+            // 사용자 정보에 새 이미지 URL 저장
+            user.updateProfileImage(imageUrl);
+
+            return "프로필 사진 변경 완료 : " + imageUrl; // 새 이미지 URL 반환
+
+        } catch (IOException e) {
+            // 파일 업로드 실패 시 예외 처리
+            throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
+        }
     }
 }

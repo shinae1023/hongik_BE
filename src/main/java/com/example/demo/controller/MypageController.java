@@ -15,10 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -69,5 +67,11 @@ public class MypageController {
     public ResponseEntity<UserResponseDto> userUpdate(@AuthenticationPrincipal UserInfo user, @RequestBody UserUpdateRequestDto requestDto) {
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.updateUser(userId,requestDto));
+    }
+
+    @PostMapping("/edit/image")
+    public ResponseEntity<String> updateUserProfileImage(@AuthenticationPrincipal UserInfo user, @RequestPart("image") MultipartFile imagefile){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.updateUserProfileImage(userId,imagefile));
     }
 }

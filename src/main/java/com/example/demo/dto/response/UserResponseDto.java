@@ -1,7 +1,10 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.entity.Theme;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.Set;
 
 @Getter
 @Builder
@@ -13,4 +16,9 @@ public class UserResponseDto {
     private int ecoScore;
     private String bank;
     private String accountNumber;
+    private String phoneNumber;
+    private String addressSido;
+    private String addressSigungu;
+    private String addressDong;
+    private Set<Theme> preferredThemes;
 }

@@ -28,8 +28,9 @@ public class ProfileController {
     private final PostService postService;
     private final LikeService likeService;
 
-    public UserResponseDto getProfile(@PathVariable Long userId) {
-        return profileService.getUsers(userId);
+    @GetMapping
+    public ResponseEntity<UserResponseDto> getProfile(@PathVariable Long userId) {
+        return ResponseEntity.ok(profileService.getUsers(userId));
     }
 
     //등록한 모든 텃밭 조회
