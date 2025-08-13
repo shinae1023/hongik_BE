@@ -18,4 +18,5 @@ public class FarmDto {
     private Integer size;
     private String thumbnailUrl;
     private boolean isBookmarked;
+    private String theme;
 }

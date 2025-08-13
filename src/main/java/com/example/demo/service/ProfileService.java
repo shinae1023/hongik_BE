@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.UserResponseDto;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class MypageService {
+public class ProfileService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
 
@@ -33,8 +32,6 @@ public class MypageService {
                 .imageUrl(user.getProfileImage())
                 .address(user.getAddress())
                 .ecoScore(user.getEcoScore())
-                .bank(user.getBank())
-                .accountNumber(user.getAccountNumber())
                 .build();
     }
 
@@ -91,24 +88,5 @@ public class MypageService {
                 .theme(farm.getTheme())
                 .build();
     }
-
-    //유저 정보 수정
-    @Transactional
-    public UserResponseDto updateUser(Long userId, UserUpdateRequestDto requestDto) {
-        // 1. 사용자 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. ID: " + userId));
-
-        user.updateMypageInfo(requestDto);
-
-        // 3. 수정된 정보를 DTO로 변환하여 반환
-        return UserResponseDto.builder()
-                .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
-                .address(user.getAddress())
-                .ecoScore(user.getEcoScore())
-                .bank(user.getBank())
-                .accountNumber(user.getAccountNumber())
-                .build();
-    }
 }
+
