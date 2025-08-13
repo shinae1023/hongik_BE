@@ -31,7 +31,7 @@ public class FarmDetailResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserDto {
-        private Long id;
+        private Long userId;
         private String nickname;
     }
 }

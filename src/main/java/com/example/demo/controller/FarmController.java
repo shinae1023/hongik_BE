@@ -4,6 +4,8 @@ import com.example.demo.dto.request.FarmCreateRequestDto;
 import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailResponseDto;
 import com.example.demo.dto.response.FarmListResponseDto;
+import com.example.demo.dto.response.FarmSearchResponseDto;
+import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.service.FarmService;
 import com.example.demo.security.UserInfo;
 import lombok.RequiredArgsConstructor;
@@ -34,13 +36,34 @@ public class FarmController {
     }
 
     @GetMapping
-    public ResponseEntity<FarmListResponseDto> getAllFarms(
+    public ResponseEntity<FarmSearchResponseDto> searchFarms(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) Integer minSize,
+            @RequestParam(required = false) Integer maxSize,
+            @RequestParam(required = false) String theme,
             @AuthenticationPrincipal UserInfo user) {
 
         Long userId = (user != null && user.getUser() != null) ? user.getUser().getUserId() : null;
 
-        return ResponseEntity.ok(farmService.getAllFarms(userId));
+        if (title != null && !title.trim().isEmpty()) {
+            return ResponseEntity.ok(farmService.searchFarmsByTitle(title, userId));
+        } else {
+            return ResponseEntity.ok(farmService.searchFarmsWithFilters(location, minPrice, maxPrice, minSize, maxSize, theme, userId));
+        }
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<MainPageResponseDto> getAllFarms(
+            @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = (user != null && user.getUser() != null) ? user.getUser().getUserId() : null;
+
+        return ResponseEntity.ok(farmService.getMainPageFarms(userId));
+    }
+    
 
     @GetMapping("/{farmId}")
     public ResponseEntity<FarmDetailResponseDto> getFarmDetail(
