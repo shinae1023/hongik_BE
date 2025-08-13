@@ -87,6 +87,7 @@ public class PostService {
         List<CommentResponseDto> commentDtos = post.getComments().stream()
                 .map(comment -> CommentResponseDto.builder()
                         .userId(comment.getUser().getUserId())
+                        .postId(comment.getPost().getId())
                         .content(comment.getContent())
                         .createdAt(comment.getCreatedAt())
                         .authorNickname(comment.getUser().getNickname())

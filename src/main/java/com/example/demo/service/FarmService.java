@@ -156,6 +156,7 @@ public class FarmService {
                         .build())
                 .isBookmarked(isBookmarked)
                 .createdAt(farm.getCreatedAt())
+                .theme(farm.getTheme())
                 .build();
     }
 
@@ -175,6 +176,7 @@ public class FarmService {
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
                 .isBookmarked(isBookmarked)
+                .theme(farm.getTheme())
                 .build();
     }
 

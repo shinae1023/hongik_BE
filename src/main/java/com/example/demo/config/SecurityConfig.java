@@ -51,7 +51,7 @@ public class SecurityConfig {
                         "/", "/home", "/login/**", "/oauth2/**", "/h2-console/**",
                         "/api/auth/**", "/static/**", "/favicon.ico", "/auth", "/Signup",
                         "/css/**", "/js/**", "/images/**", "/products/**", "/ws-chat/**",
-                        "/api/chat/**", "/ws-chat", "farm/**"
+                        "/api/chat/**", "/ws-chat", "/farm/**"
                 )
                 .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 
