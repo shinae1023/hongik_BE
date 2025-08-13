@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.controller.WebSocketChatController;
 import com.example.demo.dto.response.ChatMessageDto;
 import com.example.demo.dto.response.ChatRoomResponseDto;
 import com.example.demo.entity.*;
@@ -9,11 +10,16 @@ import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +32,8 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
+    private final S3Uploader s3Uploader;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     /**
      * 채팅방 생성 또는 기존 채팅방 반환
@@ -76,6 +84,7 @@ public class ChatService {
         ChatMessage message = ChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
+                .messageType(MessageType.TEXT)
                 .message(messageContent)
                 .build();
 
@@ -89,13 +98,56 @@ public class ChatService {
     }
 
     /**
+    이미지 전송
+    */
+    @Transactional
+    public ChatMessage sendImageMessage(Long chatRoomId, Long senderId, List<MultipartFile> imageFiles) throws IOException {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            throw new IllegalArgumentException("이미지 파일이 비어있습니다.");
+        }
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("발신자를 찾을 수 없습니다."));
+
+        // 1. S3에 이미지 업로드 후 URL 목록 받아오기
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile imageFile : imageFiles) {
+            String imageUrl = s3Uploader.upload(imageFile, "images");
+            imageUrls.add(imageUrl);
+        }
+
+        // 2. 이미지 메시지 생성
+        ChatMessage message = ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .messageType(MessageType.IMAGE) // 메시지 타입을 IMAGE로 설정
+                .message("사진") // 마지막 메시지 표시용 텍스트
+                .imageUrls(imageUrls) // 이미지 URL 리스트 저장
+                .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        // 3. 채팅방 정보 업데이트 (마지막 메시지를 "사진"으로)
+        chatRoom.updateOnNewMessage(savedMessage.getMessage(), savedMessage.getCreatedAt(), sender);
+        chatRoomRepository.save(chatRoom);
+
+        // 4. WebSocket으로 이미지 메시지 브로드캐스팅
+        WebSocketChatController.ChatMessageResponse response = WebSocketChatController.ChatMessageResponse.from(savedMessage);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId, response);
+
+        return savedMessage;
+    }
+
+    /**
      * 채팅방의 메시지 목록 조회
      */
     public Slice<ChatMessage> getChatMessages(Long chatRoomId, Pageable pageable) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
-
-        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtDesc(chatRoomId, pageable);
+        if (!chatRoomRepository.existsById(chatRoomId)) {
+            throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
+        }
+        return chatMessageRepository.findByChatRoomIdWithImages(chatRoomId, pageable);
     }
 
     /**

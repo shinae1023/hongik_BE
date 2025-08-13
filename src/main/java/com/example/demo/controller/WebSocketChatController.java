@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.ChatMessage;
+import com.example.demo.entity.MessageType;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ChatService;
@@ -12,6 +13,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -152,8 +155,27 @@ public class WebSocketChatController {
         private Long chatRoomId;
         private Long senderId;
         private String senderNickname;
-        private String message;
+
+        // --- ★ DTO 필드 수정 ★ ---
+        private MessageType messageType; // 메시지 타입 추가
+        private String message; // 텍스트 내용 또는 "사진"
+        private List<String> imageUrls; // 이미지 URL 리스트 추가
+
         private java.time.LocalDateTime createdAt;
+
+        // ChatMessage 엔티티를 DTO로 변환하는 정적 팩토리 메소드
+        public static ChatMessageResponse from(ChatMessage message) {
+            return ChatMessageResponse.builder()
+                    .messageId(message.getId())
+                    .chatRoomId(message.getChatRoom().getId())
+                    .senderId(message.getSender().getUserId())
+                    .senderNickname(message.getSender().getNickname())
+                    .messageType(message.getMessageType())
+                    .message(message.getMessage())
+                    .imageUrls(message.getImageUrls()) // 이미지 URL 리스트 매핑
+                    .createdAt(message.getCreatedAt())
+                    .build();
+        }
     }
 
     @lombok.Getter

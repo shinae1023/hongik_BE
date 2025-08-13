@@ -1,22 +1,24 @@
-package com.example.demo.dto.response;
+package com.example.demo.dto.request;
 
 import com.example.demo.entity.Theme;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Getter
 @Builder
-public class UserResponseDto {
-    //닉넴,프사,동네,점수,계좌
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserUpdateRequestDto {
     private String nickname;
-    private String imageUrl;
+    private String profileImage;
     private String address;
-    private int ecoScore;
+    private String phoneNumber;
     private String bank;
     private String accountNumber;
-    private String phoneNumber;
     private String addressSido;
     private String addressSigungu;
     private String addressDong;

@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -71,5 +72,32 @@ public class User extends BaseEntity {
         this.address = String.format("%s %s %s", sido, sigungu, dong);
         this.preferredThemes.clear();
         this.preferredThemes.addAll(themes);
+    }
+
+    //mypage user Info update
+    public void updateMypageInfo(UserUpdateRequestDto dto) {
+        this.nickname = dto.getNickname();
+        this.profileImage = dto.getProfileImage();
+        this.phone = dto.getPhoneNumber();
+        this.bank = dto.getBank();
+        this.accountNumber = dto.getAccountNumber();
+        this.addressSido = dto.getAddressSido();
+        this.addressSigungu = dto.getAddressSigungu();
+        this.addressDong = dto.getAddressDong();
+
+        // 주소 정보가 하나라도 있으면 전체 주소 문자열 업데이트
+        if (dto.getAddressSido() != null || dto.getAddressSigungu() != null || dto.getAddressDong() != null) {
+            this.address = String.format("%s %s %s", dto.getAddressSido(), dto.getAddressSigungu(), dto.getAddressDong()).trim();
+        }
+
+        // 선호 테마 업데이트
+        if (dto.getPreferredThemes() != null) {
+            this.preferredThemes.clear();
+            this.preferredThemes.addAll(dto.getPreferredThemes());
+        }
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

@@ -156,6 +156,7 @@ public class FarmService {
                         .build())
                 .isBookmarked(isBookmarked)
                 .createdAt(farm.getCreatedAt())
+                .theme(farm.getTheme())
                 .build();
     }
 
