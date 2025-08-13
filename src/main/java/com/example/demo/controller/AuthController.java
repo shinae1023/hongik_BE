@@ -21,10 +21,12 @@ public class AuthController {
     private final UserSignupService userSignupService;
     private final UserLoginService userLoginService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody @Valid RequestSignup request) {
+    @PostMapping("/signup1")
+    public ResponseEntity<ResponseLogin> signup(@RequestBody @Valid RequestSignup request) {
         userSignupService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 완료");
+        ResponseLogin response = userLoginService.authenticate(request.getEmail(), request.getPassword());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
