@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmCreateRequestDto {
+    private Long userId;
     private String title;
     private String description;
     private String address;

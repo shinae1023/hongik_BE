@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface FarmRepository extends JpaRepository<Farm, Long>{
@@ -27,16 +28,10 @@ public interface FarmRepository extends JpaRepository<Farm, Long>{
                                         @Param("maxPrice") Integer maxPrice,
                                         @Param("minSize") Integer minSize,
                                         @Param("maxSize") Integer maxSize);
-                                        
-    @Query("SELECT f FROM Farm f WHERE " +
-           "LOWER(f.address) LIKE LOWER(CONCAT('%', :addressSido, '%')) OR " +
-           "LOWER(f.address) LIKE LOWER(CONCAT('%', :addressSigungu, '%')) OR " +
-           "LOWER(f.address) LIKE LOWER(CONCAT('%', :addressDong, '%'))")
-    List<Farm> findByUserLocation(@Param("addressSido") String addressSido,
-                                 @Param("addressSigungu") String addressSigungu,
-                                 @Param("addressDong") String addressDong);
-
-    List<Farm> findByAddressContainingIgnoreCase(String preferredDong);
-
-    List<Farm> findByThemeIn(List<Theme> themes);
+    
+    @Query("SELECT DISTINCT f FROM Farm f WHERE " +
+           "(:preferredDong IS NULL OR LOWER(f.address) LIKE LOWER(CONCAT('%', :preferredDong, '%'))) OR " +
+           "(:preferredThemes IS NULL OR f.theme IN :preferredThemes)")
+    List<Farm> findRecommendedFarms(@Param("preferredDong") String preferredDong, 
+                                   @Param("preferredThemes") Set<Theme> preferredThemes);
 }
