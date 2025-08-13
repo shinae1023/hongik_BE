@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,7 +117,7 @@ public class FarmService {
             return MainPageResponseDto.builder()
                     .message("모든 텃밭 매물 목록입니다.")
                     .farms(farmDtos)
-                    .recommendedFarms(null)
+                    .recommendedFarms(new ArrayList<>())
                     .build();
         } else {
             FarmSearchResponseDto recommendedResponse = getRecommendedFarms(userId, 10);
@@ -268,27 +269,13 @@ public class FarmService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
 
-        List<Farm> recommendedFarms = new ArrayList<>();
+        String preferredDong = (user.getPreferredDong() != null && !user.getPreferredDong().trim().isEmpty()) 
+                ? user.getPreferredDong().trim() : null;
+        
+        Set<Theme> preferredThemes = (user.getPreferredThemes() != null && !user.getPreferredThemes().isEmpty()) 
+                ? user.getPreferredThemes() : null;
 
-        if (user.getPreferredDong() != null && !user.getPreferredDong().isEmpty()) {
-            List<Farm> locationBasedFarms = farmRepository.findByAddressContainingIgnoreCase(user.getPreferredDong());
-            for (Farm farm : locationBasedFarms) {
-                if (!recommendedFarms.contains(farm)) {
-                    recommendedFarms.add(farm);
-                }
-            }
-        }
-
-        if (!user.getPreferredThemes().isEmpty()) {
-            List<Theme> preferredThemes = new ArrayList<>(user.getPreferredThemes()); // Set을 List로 변환
-            List<Farm> themeBasedFarms = farmRepository.findByThemeIn(preferredThemes);
-
-            for (Farm farm : themeBasedFarms) {
-                if (!recommendedFarms.contains(farm)) {
-                    recommendedFarms.add(farm);
-                }
-            }
-        }
+        List<Farm> recommendedFarms = farmRepository.findRecommendedFarms(preferredDong, preferredThemes);
 
         if (recommendedFarms.isEmpty()) {
             recommendedFarms = farmRepository.findAll();
