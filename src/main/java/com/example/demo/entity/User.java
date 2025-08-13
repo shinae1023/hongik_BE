@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,12 +40,8 @@ public class User extends BaseEntity {
     private String bank;
 
     private String address;
-    @Column(name = "address_sido")
-    private String addressSido;
-    @Column(name = "address_sigungu")
-    private String addressSigungu;
-    @Column(name = "address_dong")
-    private String addressDong;
+
+    private String preferredDong;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -64,13 +61,29 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
-    public void updateOnboardingInfo(String sido, String sigungu, String dong, Set<Theme> themes) {
-        this.addressSido = sido;
-        this.addressSigungu = sigungu;
-        this.addressDong = dong;
-
-        this.address = String.format("%s %s %s", sido, sigungu, dong);
+    public void updateOnboardingInfo(String preferredDong, Set<Theme> themes) {
+        this.preferredDong=preferredDong;
         this.preferredThemes.clear();
         this.preferredThemes.addAll(themes);
+    }
+
+    //mypage user Info update
+    public void updateMypageInfo(UserUpdateRequestDto dto) {
+        this.nickname = dto.getNickname();
+        this.profileImage = dto.getProfileImage();
+        this.phone = dto.getPhoneNumber();
+        this.bank = dto.getBank();
+        this.accountNumber = dto.getAccountNumber();
+        this.preferredDong = dto.getPreferredDong();
+
+        // 선호 테마 업데이트
+        if (dto.getPreferredThemes() != null) {
+            this.preferredThemes.clear();
+            this.preferredThemes.addAll(dto.getPreferredThemes());
+        }
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

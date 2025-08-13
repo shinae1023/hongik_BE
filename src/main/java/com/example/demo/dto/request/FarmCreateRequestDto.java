@@ -1,5 +1,6 @@
 package com.example.demo.dto.request;
 
+import com.example.demo.entity.Theme;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class FarmCreateRequestDto {
     private Integer price;
     private Integer rentalPeriod;
     private Integer size;
-    private String theme;
+    private Theme theme;
     private List<MultipartFile> images;
     private String bank;
     private String accountNumber;

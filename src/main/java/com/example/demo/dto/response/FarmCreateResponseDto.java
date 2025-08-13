@@ -1,5 +1,6 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.entity.Theme;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class FarmCreateResponseDto {
     private Integer price;
     private Integer rentalPeriod;
     private Integer size;
-    private String theme;
+    private Theme theme;
     private String bank;
     private String accountNumber;
     private List<String> imageUrls;

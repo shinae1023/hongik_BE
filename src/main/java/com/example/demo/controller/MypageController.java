@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
 import com.example.demo.dto.response.UserResponseDto;
+import com.example.demo.entity.User;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.security.UserInfo;
 import com.example.demo.service.LikeService;
 import com.example.demo.service.MypageService;
@@ -11,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,5 +61,17 @@ public class MypageController {
     public ResponseEntity<List<PostSummaryDto>> getUserPostsLiked(@AuthenticationPrincipal UserInfo user) {
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(likeService.getLikedPosts(userId));
+    }
+
+    @PatchMapping("/edit")
+    public ResponseEntity<UserResponseDto> userUpdate(@AuthenticationPrincipal UserInfo user, @RequestBody UserUpdateRequestDto requestDto) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.updateUser(userId,requestDto));
+    }
+
+    @PostMapping("/edit/image")
+    public ResponseEntity<String> updateUserProfileImage(@AuthenticationPrincipal UserInfo user, @RequestPart("image") MultipartFile imagefile){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.updateUserProfileImage(userId,imagefile));
     }
 }

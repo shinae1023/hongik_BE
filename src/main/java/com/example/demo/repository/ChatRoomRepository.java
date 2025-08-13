@@ -19,10 +19,12 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
      * @return 해당 사용자가 참여중인 모든 채팅방 리스트
      */
     @Query("SELECT DISTINCT cr FROM ChatRoom cr " +
-            "JOIN FETCH cr.consumer c " +
-            "JOIN FETCH cr.provider p " +
-            "JOIN FETCH cr.farm f " +
-            "WHERE c.userId = :userId OR p.userId = :userId")
+            "LEFT JOIN FETCH cr.farm f " + // 채팅방과 연결된 Farm을 함께 가져옴
+            "LEFT JOIN FETCH f.images " +  // Farm과 연결된 FarmImage 목록을 함께 가져옴
+            "LEFT JOIN FETCH cr.provider " + // 판매자 정보를 함께 가져옴
+            "LEFT JOIN FETCH cr.consumer " + // 구매자 정보를 함께 가져옴
+            "WHERE cr.provider.userId = :userId OR cr.consumer.userId = :userId " +
+            "ORDER BY cr.lastMessageAt DESC")
     List<ChatRoom> findChatRoomsByUserIdWithDetails(@Param("userId") Long userId);
 
     /**

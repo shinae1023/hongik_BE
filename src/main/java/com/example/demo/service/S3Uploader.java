@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,13 +51,20 @@ public class S3Uploader {
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
+    public void deleteFile(String fileUrl) {
+        try {
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
+        } catch (Exception e) {
+            log.error("S3 파일 삭제에 실패했습니다. URL: {}", fileUrl, e);
+        }
+    }
+
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
-            log.info("파일이 성공적으로 삭제되었습니다");
-            // 파일 삭제 성공 로그
+            log.info("파일이 삭제되었습니다.");
         } else {
-            log.info("파일 삭제 실패");
-            // 파일 삭제 실패 로그
+            log.info("파일이 삭제되지 못했습니다.");
         }
     }
 

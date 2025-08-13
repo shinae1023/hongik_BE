@@ -1,5 +1,6 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.entity.Theme;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,5 @@ public class FarmDto {
     private Integer size;
     private String thumbnailUrl;
     private boolean isBookmarked;
-    private String theme;
+    private Theme theme;
 }
