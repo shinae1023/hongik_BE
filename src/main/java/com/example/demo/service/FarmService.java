@@ -88,8 +88,6 @@ public class FarmService {
                 .size(savedFarm.getSize())
                 .theme(savedFarm.getTheme())
                 .imageUrls(uploadedImageUrls)
-                .bank(requestDto.getBank())
-                .accountNumber(requestDto.getAccountNumber())
                 .createdAt(savedFarm.getCreatedAt())
                 .build();
     }
