@@ -23,8 +23,6 @@ public class FarmCreateResponseDto {
     private Integer rentalPeriod;
     private Integer size;
     private Theme theme;
-    private String bank;
-    private String accountNumber;
     private List<String> imageUrls;
     private LocalDateTime createdAt;
 }

@@ -23,6 +23,4 @@ public class FarmCreateRequestDto {
     private Integer size;
     private Theme theme;
     private List<MultipartFile> images;
-    private String bank;
-    private String accountNumber;
 }
