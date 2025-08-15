@@ -47,7 +47,7 @@ public class FarmService {
             List<MultipartFile> images,
             Long userId) throws IOException {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
 
         Farm farm = Farm.builder()
@@ -94,19 +94,6 @@ public class FarmService {
                 .build();
     }
 
-    public FarmListResponseDto getAllFarms(Long userId) {
-        List<Farm> farms = farmRepository.findAll();
-
-        List<FarmDto> farmDtos = farms.stream()
-                .map(farm -> toFarmDto(farm, userId))
-                .collect(Collectors.toList());
-
-        return FarmListResponseDto.builder()
-                .message("모든 텃밭 매물 목록입니다.")
-                .farms(farmDtos)
-                .build();
-    }
-
     public MainPageResponseDto getMainPageFarms(Long userId) {
         List<Farm> allFarms = farmRepository.findAll();
         List<FarmDto> farmDtos = allFarms.stream()
@@ -120,7 +107,7 @@ public class FarmService {
                     .recommendedFarms(new ArrayList<>())
                     .build();
         } else {
-            FarmSearchResponseDto recommendedResponse = getRecommendedFarms(userId, 10);
+            FarmSearchResponseDto recommendedResponse = getRecommendedFarms(userId);
             List<FarmDto> recommendedFarms = recommendedResponse.getFarms();
 
             return MainPageResponseDto.builder()
@@ -183,7 +170,7 @@ public class FarmService {
 
     @Transactional
     public void addBookmark(String farmId, Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
         Farm farm = farmRepository.findById(Long.parseLong(farmId))
                 .orElseThrow(() -> new EntityNotFoundException("텃밭을 찾을 수 없습니다. (ID: " + farmId + ")"));
@@ -198,7 +185,7 @@ public class FarmService {
 
     @Transactional
     public void removeBookmark(String farmId, Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
         Farm farm = farmRepository.findById(Long.parseLong(farmId))
                 .orElseThrow(() -> new EntityNotFoundException("텃밭을 찾을 수 없습니다. (ID: " + farmId + ")"));
@@ -265,7 +252,7 @@ public class FarmService {
                 .build();
     }
 
-    public FarmSearchResponseDto getRecommendedFarms(Long userId, Integer limit) {
+    public FarmSearchResponseDto getRecommendedFarms(Long userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
 
@@ -279,10 +266,6 @@ public class FarmService {
 
         if (recommendedFarms.isEmpty()) {
             recommendedFarms = farmRepository.findAll();
-        }
-
-        if (recommendedFarms.size() > limit) {
-            recommendedFarms = recommendedFarms.subList(0, limit);
         }
 
         List<FarmDto> farmDtos = recommendedFarms.stream()
