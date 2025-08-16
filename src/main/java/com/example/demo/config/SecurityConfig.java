@@ -54,8 +54,7 @@ public class SecurityConfig {
                         "/", "/home", "/login/**", "/oauth2/**", "/h2-console/**",
                         "/api/auth/**", "/static/**", "/favicon.ico", "/auth", "/Signup",
                         "/css/**", "/js/**", "/images/**", "/products/**", "/ws-chat/**",
-                        "/api/chat/**", "/ws-chat", "/farm/**", "posts/list", "posts/tip", "posts/feed",
-                        "posts/search"
+                        "/api/chat/**", "/ws-chat", "/farm/**"
                 )
                 .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 
@@ -71,7 +70,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
-                .securityMatcher("/api/v1/**", "/reviews/**")
+                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
@@ -106,7 +105,8 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "https://spacefarm.shop",
                 "http://localhost:8080",
-                "https://jiangxy.github.io"
+                "https://jiangxy.github.io",
+                "https://www.spacefarm.cloud"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

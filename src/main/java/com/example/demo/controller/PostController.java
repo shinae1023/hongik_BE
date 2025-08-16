@@ -21,6 +21,7 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
 
+    
     private final PostService postService;
     // 게시글 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
