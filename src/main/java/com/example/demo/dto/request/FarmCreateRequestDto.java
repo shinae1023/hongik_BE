@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmCreateRequestDto {
+    private Long userId;
     private String title;
     private String description;
     private String address;
@@ -22,6 +23,4 @@ public class FarmCreateRequestDto {
     private Integer size;
     private Theme theme;
     private List<MultipartFile> images;
-    private String bank;
-    private String accountNumber;
 }

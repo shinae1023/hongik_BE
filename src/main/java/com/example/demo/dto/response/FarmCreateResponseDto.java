@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmCreateResponseDto {
+    private Long userId;
     private Long id;
     private String title;
     private String description;
@@ -22,8 +23,6 @@ public class FarmCreateResponseDto {
     private Integer rentalPeriod;
     private Integer size;
     private Theme theme;
-    private String bank;
-    private String accountNumber;
     private List<String> imageUrls;
     private LocalDateTime createdAt;
 }
