@@ -68,6 +68,7 @@ public class PostService {
 
         // 3. Post 엔티티를 저장 (연관된 Image 엔티티들도 함께 저장됨)
         Post savedPost = postRepository.save(post);
+        user.updateEcoScore(10);
         return savedPost.getId();
     }
 

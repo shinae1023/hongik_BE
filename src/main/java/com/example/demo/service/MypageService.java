@@ -9,7 +9,10 @@ import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +42,16 @@ public class MypageService {
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
                 .phoneNumber(user.getPhone())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public EcoScoreResopnseDto getEcoScore(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException("사용자를 찾을 수 없습니다"));
+        return EcoScoreResopnseDto.builder()
+                .userId(user.getUserId())
+                .ecoscore(user.getEcoScore())
                 .build();
     }
 
@@ -143,5 +156,12 @@ public class MypageService {
             // 파일 업로드 실패 시 예외 처리
             throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
         }
+    }
+
+    @Builder
+    @Getter
+    public static class EcoScoreResopnseDto {
+        private Long userId;
+        private int ecoscore;
     }
 }

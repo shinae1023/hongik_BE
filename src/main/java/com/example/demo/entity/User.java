@@ -51,7 +51,7 @@ public class User extends BaseEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
-    private int ecoScore;
+    private int ecoScore = 0;
 
     @ElementCollection(targetClass = Theme.class)
     @CollectionTable(name = "user_preferred_themes", joinColumns = @JoinColumn(name = "user_id"))
@@ -87,5 +87,8 @@ public class User extends BaseEntity implements Serializable {
 
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+    public void updateEcoScore(int ecoScore) {
+        this.ecoScore += ecoScore;
     }
 }
