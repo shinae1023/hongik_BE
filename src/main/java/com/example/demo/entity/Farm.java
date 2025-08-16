@@ -35,6 +35,14 @@ public class Farm {
 
     private LocalDateTime createdAt;
 
+    private Long borrowerId;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isPremium = false;
+
+    private LocalDateTime updateTime;
+
     @Enumerated(EnumType.STRING)
     private Theme theme;
 
