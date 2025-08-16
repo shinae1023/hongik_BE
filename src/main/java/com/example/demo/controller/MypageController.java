@@ -35,6 +35,12 @@ public class MypageController {
         return ResponseEntity.ok(mypageService.getUsers(userId));
     }
 
+    @GetMapping("/ecoscore")
+    public ResponseEntity<MypageService.EcoScoreResopnseDto> getEcoScore(@AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getEcoScore(userId));
+    }
+
     //등록한 모든 텃밭 조회
     @GetMapping("/farm")
     public ResponseEntity<FarmListResponseDto> getFarms(@AuthenticationPrincipal UserInfo user) {

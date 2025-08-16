@@ -33,6 +33,7 @@ public class ReviewService {
                 .content(request.getContent())
                 .build();
 
+        user.updateEcoScore(10);
         Review savedReview = reviewRepository.save(review);
 
         return ReviewResponse.builder()

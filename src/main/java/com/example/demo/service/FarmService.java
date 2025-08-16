@@ -62,6 +62,7 @@ public class FarmService {
                 .user(user)
                 .build();
 
+        user.updateEcoScore(50);
         Farm savedFarm = farmRepository.save(farm);
 
         List<String> uploadedImageUrls = new ArrayList<>();
