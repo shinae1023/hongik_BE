@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.config.jwt.TokenProvider;
 import com.example.demo.dto.response.ResponseLogin;
+import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,8 +24,15 @@ public class UserLoginService {
 
         String accessToken = tokenProvider.createToken(authentication);
 
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
+
+
         return ResponseLogin.builder()
                 .accessToken(accessToken)
+                .nickname(user.getNickname())
+                .preferredDong(user.getPreferredDong())
+                .preferredThemes(user.getPreferredThemes())
                 .build();
     }
 }
