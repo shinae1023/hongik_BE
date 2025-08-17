@@ -23,4 +23,6 @@ public class FarmDto {
     private String thumbnailUrl;
     private boolean isBookmarked;
     private Theme theme;
+    private Long borrowerId;
+    private boolean isPremium;
 }

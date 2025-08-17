@@ -80,6 +80,7 @@ public class FarmService {
         }
 
         return FarmCreateResponseDto.builder()
+                .userId(savedFarm.getUser().getUserId())
                 .id(savedFarm.getId())
                 .title(savedFarm.getTitle())
                 .description(savedFarm.getDescription())
@@ -92,6 +93,8 @@ public class FarmService {
                 .createdAt(savedFarm.getCreatedAt())
                 .build();
     }
+
+
 
     public MainPageResponseDto getMainPageFarms(Long userId) {
         List<Farm> allFarms = farmRepository.findAll();
@@ -144,6 +147,8 @@ public class FarmService {
                 .isBookmarked(isBookmarked)
                 .createdAt(farm.getCreatedAt())
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
+                .updatedTime(farm.getUpdateTime())
                 .build();
     }
 
@@ -164,6 +169,7 @@ public class FarmService {
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
                 .isBookmarked(isBookmarked)
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
                 .build();
     }
 
