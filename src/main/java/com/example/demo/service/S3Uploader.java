@@ -49,7 +49,6 @@ public class S3Uploader {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(fileName)
-                .acl(ObjectCannedACL.PUBLIC_READ) // AWS SDK v2는 ObjectCannedACL을 사용합니다.
                 .build();
 
         try {

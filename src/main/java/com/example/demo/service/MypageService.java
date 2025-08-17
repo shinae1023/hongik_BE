@@ -158,10 +158,17 @@ public class MypageService {
         }
     }
 
+    //프리미엄 매물 등록
+//    @Transactional
+//    public FarmDto FarmPremium(Long farmId){
+//
+//    }
+
     @Builder
     @Getter
     public static class EcoScoreResopnseDto {
         private Long userId;
         private int ecoscore;
     }
+
 }

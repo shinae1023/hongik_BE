@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Setter
 public class Farm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
