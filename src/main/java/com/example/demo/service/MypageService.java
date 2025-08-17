@@ -9,6 +9,7 @@ import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +70,7 @@ public class MypageService {
 
         // 3. 조회된 Farm 엔티티 목록을 FarmListDto 목록으로 변환하여 반환
         return FarmListResponseDto.builder()
+                .message("내 텃밭 조회")
                 .farms(farmDtos)
                 .build();
     }
@@ -160,12 +162,6 @@ public class MypageService {
             throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
         }
     }
-
-    //프리미엄 매물 등록
-//    @Transactional
-//    public FarmDto FarmPremium(Long farmId){
-//
-//    }
 
     @Builder
     @Getter

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.util.List;
@@ -93,5 +94,11 @@ public class FarmController {
         Long userId = user.getUser().getUserId();
         farmService.removeBookmark(farmId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{farmId}/up")
+    public ResponseEntity<Integer> upFarm(@PathVariable Long farmId , @AuthenticationPrincipal UserInfo user){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(farmService.FarmPremium(farmId,userId));
     }
 }

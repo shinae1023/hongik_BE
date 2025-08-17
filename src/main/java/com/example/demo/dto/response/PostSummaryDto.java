@@ -14,6 +14,7 @@ public class PostSummaryDto {
     private Category category;
     private String title;
     private String authorNickname;
+    private String content;
     private String thumbnailUrl;
     private Long likeCount;
     private Timestamp createdAt;

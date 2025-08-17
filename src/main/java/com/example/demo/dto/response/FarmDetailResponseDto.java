@@ -27,8 +27,8 @@ public class FarmDetailResponseDto {
     private boolean isBookmarked;
     private LocalDateTime createdAt;
     private Long borrowerId;
-    private boolean isPremium;
     private LocalDateTime updatedTime;
+    private boolean ownerAuth;
 
     @Getter
     @Builder

@@ -48,7 +48,7 @@ public class MypageController {
         return ResponseEntity.ok(mypageService.getMyFarms(userId));
     }
 
-    //내가 빌린 텃밫
+    //내가 빌린 텃밭
     @GetMapping("/farm/used")
     public ResponseEntity<FarmListResponseDto> getFarmsUsed(@AuthenticationPrincipal UserInfo user) {
         Long userId = user.getUser().getUserId();

@@ -194,6 +194,7 @@ public class PostService {
                 .title(post.getTitle())
                 .category(post.getCategory())
                 .authorNickname(post.getUser().getNickname())
+                .content(post.getContent())
                 .thumbnailUrl(thumbnailUrl) // 썸네일 추가
                 .likeCount((long) post.getLikes().size())
                 .createdAt(post.getCreatedAt())
