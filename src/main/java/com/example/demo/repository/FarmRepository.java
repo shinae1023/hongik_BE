@@ -18,6 +18,8 @@ public interface FarmRepository extends JpaRepository<Farm, Long>{
     List<Farm> findByUserUserIdAndIsAvailable(Long userId, boolean isAvailable);
     
     List<Farm> findByTitleContainingIgnoreCase(String title);
+
+    List<Farm> findByBorrowerId(Long borrowerId);
     
     @Query("SELECT DISTINCT f FROM Farm f WHERE " +
            "(:minPrice IS NULL OR f.price >= :minPrice) AND " +
