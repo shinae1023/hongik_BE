@@ -22,13 +22,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,7 +95,7 @@ public class FarmService {
 
 
     public MainPageResponseDto getMainPageFarms(Long userId) {
-        List<Farm> allFarms = farmRepository.findAll();
+        List<Farm> allFarms = farmRepository.findAllByOrderByUpdateTimeDesc();
         List<FarmDto> farmDtos = allFarms.stream()
                 .map(farm -> toFarmDto(farm, userId))
                 .collect(Collectors.toList());
@@ -129,6 +127,9 @@ public class FarmService {
             isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
         }
 
+        boolean isOwner = false;
+        if(Objects.equals(userId, farm.getUser().getUserId())) {isOwner = true;}
+
         return FarmDetailResponseDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())
@@ -149,6 +150,7 @@ public class FarmService {
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
                 .updatedTime(farm.getUpdateTime())
+                .ownerAuth(isOwner) //isOwner = true 인 경우, 매물 수정 및 프리미엄 매물 등록 버튼 있어야 함
                 .build();
     }
 
@@ -160,6 +162,7 @@ public class FarmService {
         }
 
         return FarmDto.builder()
+                .userId(farm.getUser().getUserId())
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .price(farm.getPrice())
@@ -170,6 +173,7 @@ public class FarmService {
                 .isBookmarked(isBookmarked)
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
+                .updateTime(farm.getUpdateTime())
                 .build();
     }
 
@@ -202,7 +206,7 @@ public class FarmService {
     }
 
     public FarmSearchResponseDto searchFarmsByTitle(String title, Long userId) {
-        List<Farm> farms = farmRepository.findByTitleContainingIgnoreCase(title.trim());
+        List<Farm> farms = farmRepository.findByTitleContainingIgnoreCaseOrderByUpdateTimeDesc(title.trim());
         String message = "'" + title + "'으로 검색한 결과입니다.";
 
         if (farms.isEmpty()) {
@@ -290,5 +294,31 @@ public class FarmService {
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    //프리미엄 매물 등록
+    @Transactional
+    public int FarmPremium(Long farmId, Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException("존재하지 않는 유저입니다"));
+
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 텃밭입니다."));
+
+        if (!farm.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("프리미엄 등록 권한이 없습니다."); // 혹은 다른 권한 관련 예외
+        }
+
+        farm.checkAndResetPremiumCount();
+
+        if (farm.getPremiumCount() >= 5) {
+            throw new IllegalStateException("하루 프리미엄 등록 횟수(5회)를 모두 사용했습니다.");
+        }
+
+        farm.increasePremiumCount();
+        user.updateEcoScore(-100);
+        farm.updateTime();
+
+        return farm.getPremiumCount();
     }
 }

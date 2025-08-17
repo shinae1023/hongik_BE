@@ -4,6 +4,9 @@ import com.example.demo.entity.Category;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.sql.Timestamp;
+
+
 @Getter
 @Builder
 public class PostSummaryDto {
@@ -11,7 +14,9 @@ public class PostSummaryDto {
     private Category category;
     private String title;
     private String authorNickname;
+    private String content;
     private String thumbnailUrl;
     private Long likeCount;
+    private Timestamp createdAt;
 }
 

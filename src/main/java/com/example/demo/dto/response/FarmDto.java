@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -22,5 +25,6 @@ public class FarmDto {
     private boolean isBookmarked;
     private Theme theme;
     private Long borrowerId;
-    private boolean isPremium;
+    private boolean ownerAuth;
+    private LocalDateTime updateTime;
 }

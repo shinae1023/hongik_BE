@@ -9,6 +9,7 @@ import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -69,23 +70,25 @@ public class MypageService {
 
         // 3. 조회된 Farm 엔티티 목록을 FarmListDto 목록으로 변환하여 반환
         return FarmListResponseDto.builder()
+                .message("내 텃밭 조회")
                 .farms(farmDtos)
                 .build();
     }
 
-    //등록한 매물 중 대여중인 텃밭
+    //내가 대여중인 텃밭
     @Transactional(readOnly = true)
     public FarmListResponseDto getFarmsUsed(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
-        List<Farm> farms = farmRepository.findByUserUserIdAndIsAvailable(userId, false);
+        List<Farm> farms = farmRepository.findByBorrowerId(userId);
 
         List<FarmDto> farmDtos = farms.stream()
                 .map(farm -> toFarmDto(farm, userId))
                 .collect(Collectors.toList());
 
         return FarmListResponseDto.builder()
+                .message("빌린 텃밭 목록 조회")
                 .farms(farmDtos)
                 .build();
     }
@@ -97,6 +100,7 @@ public class MypageService {
         // 북마크 기능이 아직 구현되지 않았다면 false로 고정
 
         return FarmDto.builder()
+                .userId(farm.getUser().getUserId())
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .address(farm.getAddress())
@@ -106,6 +110,7 @@ public class MypageService {
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
                 .isBookmarked(isBookmarked)
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
                 .build();
     }
 
@@ -164,4 +169,5 @@ public class MypageService {
         private Long userId;
         private int ecoscore;
     }
+
 }
