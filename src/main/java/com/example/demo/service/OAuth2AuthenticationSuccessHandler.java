@@ -35,7 +35,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         UserInfo userInfo = (UserInfo) authentication.getPrincipal();
 
         // 2) TokenProvider로 JWT 생성
-        String accessToken = tokenProvider.createToken(authentication);
+        String accessToken = tokenProvider.createAccessToken(authentication);
 
         // 3) JSON 응답 작성
         Map<String, Object> resp = Map.of(
