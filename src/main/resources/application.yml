@@ -2,7 +2,6 @@ server:
   port: 8080 # 서버가 실행될 포트 번호
 
 spring:
-
   security:
     oauth2:
       client:
@@ -24,18 +23,13 @@ spring:
 
 ## JWT 토큰 설정
 jwt:
+  header: Authorization
   secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd6eXoxMjMxMjMxMjMxMjMxMjMxMzEyMzEyMzEzMTIzMTIzMTIzMTMxMjMxMzEzMTMxMjM
-  access-token-expiration: 3600000
-  refresh-token-expiration: 1209600000
+  accessTokenValidityInSeconds: 3600 # 1시간
+  refreshTokenValidityInSeconds: 604800 # 7일
 
 ## 로그 레벨 설정
 logging:
   level:
     org.springframework.security: DEBUG  # 스프링 시큐리티 디버그 로그
     com.example.oauth: DEBUG  # 우리 패키지 디버그 로그
-    org.springframework.web.socket: DEBUG
-    org.springframework.messaging: DEBUG
-    org.springframework.web.socket.messaging: DEBUG
-    org.springframework.messaging.simp: DEBUG
-    org.springframework.messaging.support: DEBUG
-    com.example.demo: DEBUG
