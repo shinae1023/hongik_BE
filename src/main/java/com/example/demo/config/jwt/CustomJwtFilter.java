@@ -2,48 +2,51 @@ package com.example.demo.config.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomJwtFilter extends GenericFilterBean {
+public class CustomJwtFilter extends OncePerRequestFilter {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private final TokenProvider tokenProvider;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        String jwt = resolveToken(req);
-        String requestURI = req.getRequestURI();
-
-        // ✅ 경로 체크 로직 완전 삭제!
-        // 이 필터는 이제 인증이 필요한 API 경로에만 적용되므로
-        // 모든 요청에 대해 토큰 검증을 수행하면 됩니다.
+        String jwt = resolveToken(request);
+        String requestURI = request.getRequestURI();
 
         if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            String tokenType = tokenProvider.getTokenType(jwt);
+            if (!"access".equals(tokenType)) {
+                log.debug("리프레시 토큰입니다. 인증 필터에서 처리하지 않습니다. URI: {}", requestURI);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. URI: {}", authentication.getName(), requestURI);
         } else {
-            log.debug("유효한 JWT 토큰이 없습니다. URI: {}", requestURI);
+            log.debug("유효한 JWT 토큰이 없거나 만료되었습니다. URI: {}", requestURI);
         }
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {

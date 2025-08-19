@@ -15,7 +15,9 @@ import java.util.Set;
 @Builder
 public class ResponseLogin {
     private String accessToken;
+    private String refreshToken;
     private String nickname;
     private String preferredDong;
     private Set<Theme> preferredThemes;
+    private int ecoScore;
 }
