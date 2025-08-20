@@ -58,4 +58,20 @@ public class CommentService {
                         .build()).collect(Collectors.toList());
 
     }
+
+    //댓글 최신순
+    public List<CommentResponseDto> getCommentNew(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
+        return commentRepository.findByPostIdOrderByCreatedAtDesc(post).stream()
+                .map(comment -> CommentResponseDto.builder()
+                        .userId(comment.getUser().getUserId())
+                        .content(comment.getContent())
+                        .postId(comment.getPost().getId())
+                        .createdAt(comment.getCreatedAt())
+                        .authorNickname(comment.getUser().getNickname())
+                        .build()).collect(Collectors.toList());
+
+    }
 }

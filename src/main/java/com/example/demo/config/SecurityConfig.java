@@ -54,7 +54,7 @@ public class SecurityConfig {
                         "/", "/home", "/login/**", "/oauth2/**", "/h2-console/**",
                         "/api/auth/**", "/static/**", "/favicon.ico", "/auth", "/Signup",
                         "/css/**", "/js/**", "/images/**", "/products/**", "/ws-chat/**",
-                        "/api/chat/**", "/ws-chat", "/farm/**"
+                        "/api/chat/**", "/ws-chat"
                 )
                 .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 
@@ -70,10 +70,19 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
-                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**")
+                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**", "/comment/**", "/mypage/**","/farm/**", "/chat/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/posts").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/comment").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/farm").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/farm/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH,"/mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/chat/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/chat/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
@@ -106,7 +115,7 @@ public class SecurityConfig {
                 "https://spacefarm.shop",
                 "http://localhost:8080",
                 "https://jiangxy.github.io",
-                "https://www.spacefarm.cloud"
+                "https://spacefarm.cloud"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

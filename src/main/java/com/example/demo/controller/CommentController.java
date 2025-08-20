@@ -29,4 +29,10 @@ public class CommentController {
     public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.getComment(postId));
     }
+
+    //댓글 조회 최신순
+    @GetMapping("/{postId}/new")
+    public ResponseEntity<List<CommentResponseDto>> getCommentNew(@PathVariable Long postId) {
+        return ResponseEntity.ok(commentService.getCommentNew(postId));
+    }
 }
