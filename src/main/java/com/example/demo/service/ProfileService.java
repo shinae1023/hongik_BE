@@ -6,6 +6,7 @@ import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.entity.Farm;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.repository.BookmarkRepository;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProfileService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional(readOnly = true)
     public UserResponseDto getUsers(Long userId) {
@@ -69,10 +71,11 @@ public class ProfileService {
     }
 
     private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
-        // 여기에 BookmarkRepository를 사용하여 북마크 여부 확인 로직 추가
-        // 예: isBookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
-        // 북마크 기능이 아직 구현되지 않았다면 false로 고정
+        boolean bookmarked = false;
+        if (currentUserId != null) {
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
+        }
+
 
         return FarmDto.builder()
                 .id(farm.getId())
@@ -82,7 +85,7 @@ public class ProfileService {
                 .rentalPeriod(farm.getRentalPeriod())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
                 .build();
     }

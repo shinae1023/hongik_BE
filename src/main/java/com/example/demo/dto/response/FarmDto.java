@@ -22,7 +22,7 @@ public class FarmDto {
     private Integer rentalPeriod;
     private Integer size;
     private String thumbnailUrl;
-    private boolean isBookmarked;
+    private boolean bookmarked;
     private Theme theme;
     private Long borrowerId;
     private boolean ownerAuth;
