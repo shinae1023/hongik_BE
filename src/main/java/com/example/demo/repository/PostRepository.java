@@ -31,4 +31,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "LEFT JOIN FETCH p.likes " +     // 좋아요 목록
             "WHERE p.id = :postId")
     Optional<Post> findByIdWithDetails(@Param("postId") Long postId);
+
+    @Query("SELECT DISTINCT p FROM Post p " +
+            "LEFT JOIN FETCH p.user " +      // 작성자 정보
+            "LEFT JOIN FETCH p.images " +    // 이미지 목록
+            "LEFT JOIN FETCH p.comments c " +// 댓글 목록
+            "LEFT JOIN FETCH c.user " +      // 댓글의 작성자 정보
+            "LEFT JOIN FETCH p.likes " +     // 좋아요 목록
+            "WHERE p.id = :postId")
+    Optional<Post> findByUser_UserIdAndId(Long userId, Long postId);
 }

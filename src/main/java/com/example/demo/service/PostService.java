@@ -178,6 +178,14 @@ public class PostService {
         }
     }
 
+    //게시글 삭제
+    public String deletePost(Long userId, long postId){
+        Post post = postRepository.findByUser_UserIdAndId(userId,postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물을 찾을 수 없습니다."));
+        postRepository.delete(post);
+        return "게시물이 삭제되었습니다.";
+    }
+
     /**
      * Post 엔티티를 PostSummaryDto로 변환하는 헬퍼 메서드
      */
