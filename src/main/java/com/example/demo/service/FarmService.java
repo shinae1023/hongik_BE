@@ -122,9 +122,9 @@ public class FarmService {
         Farm farm = farmRepository.findById(Long.parseLong(farmId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 텃밭입니다. (ID: " + farmId + ")"));
 
-        boolean isBookmarked = false;
+        boolean bookmarked = false;
         if (userId != null) {
-            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
         }
 
         boolean isOwner = false;
@@ -145,7 +145,7 @@ public class FarmService {
                         .userId(farm.getUser().getUserId())
                         .nickname(farm.getUser().getNickname())
                         .build())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .createdAt(farm.getCreatedAt())
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
@@ -156,9 +156,9 @@ public class FarmService {
 
 
     private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
+        boolean bookmarked = false;
         if (currentUserId != null) {
-            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
         }
 
         return FarmDto.builder()
@@ -170,7 +170,7 @@ public class FarmService {
                 .address(farm.getAddress())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
                 .updateTime(farm.getUpdateTime())

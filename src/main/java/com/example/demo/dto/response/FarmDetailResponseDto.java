@@ -24,7 +24,7 @@ public class FarmDetailResponseDto {
     private String description;
     private List<String> imageUrls;
     private UserDto owner;
-    private boolean isBookmarked;
+    private boolean bookmarked;
     private LocalDateTime createdAt;
     private Long borrowerId;
     private LocalDateTime updatedTime;

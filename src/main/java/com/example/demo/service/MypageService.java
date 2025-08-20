@@ -94,9 +94,9 @@ public class MypageService {
     }
 
     private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
+        boolean bookmarked = false;
         // 여기에 BookmarkRepository를 사용하여 북마크 여부 확인 로직 추가
-        // 예: isBookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
+        // 예: bookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
         // 북마크 기능이 아직 구현되지 않았다면 false로 고정
 
         return FarmDto.builder()
@@ -108,7 +108,7 @@ public class MypageService {
                 .rentalPeriod(farm.getRentalPeriod())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
                 .build();
