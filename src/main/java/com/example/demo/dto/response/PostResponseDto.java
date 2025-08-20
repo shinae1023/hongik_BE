@@ -21,5 +21,6 @@ public class PostResponseDto {
     private List<String> imageUrls;
     private List<CommentResponseDto> comments;
     private Long likeCount;
+    private boolean isLiked;
 }
 

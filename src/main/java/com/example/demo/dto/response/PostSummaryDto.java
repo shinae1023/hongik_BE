@@ -18,5 +18,6 @@ public class PostSummaryDto {
     private String thumbnailUrl;
     private Long likeCount;
     private Timestamp createdAt;
+    private boolean isLiked;
 }
 
