@@ -52,6 +52,7 @@ public class User extends BaseEntity implements Serializable {
     private SocialType socialType;
 
     private int ecoScore = 0;
+    private int coin = 0;
 
     @ElementCollection(targetClass = Theme.class)
     @CollectionTable(name = "user_preferred_themes", joinColumns = @JoinColumn(name = "user_id"))
@@ -91,4 +92,5 @@ public class User extends BaseEntity implements Serializable {
     public void updateEcoScore(int ecoScore) {
         this.ecoScore += ecoScore;
     }
+    public void updateCoin(int coin){this.coin += coin;}
 }

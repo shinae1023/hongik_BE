@@ -4,6 +4,7 @@ package com.example.demo.service;
 import com.example.demo.dto.request.CommentRequestDto;
 import com.example.demo.dto.response.CommentResponseDto;
 import com.example.demo.entity.Comment;
+import com.example.demo.entity.Like;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CommentRepository;
@@ -11,6 +12,7 @@ import com.example.demo.repository.PostRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -74,4 +76,13 @@ public class CommentService {
                         .build()).collect(Collectors.toList());
 
     }
+
+    //댓글 삭제
+    public String deleteComment(@PathVariable Long postId, Long userId){
+        Comment comment = commentRepository.findByUser_UserIdAndPostId(userId,postId)
+                .orElseThrow (()->new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
+        commentRepository.delete(comment);
+        return "댓글이 삭제되었습니다.";
+    }
+
 }

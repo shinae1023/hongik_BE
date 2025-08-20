@@ -4,9 +4,11 @@ import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.UserResponseDto;
+import com.example.demo.entity.Bookmark;
 import com.example.demo.entity.Farm;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.repository.BookmarkRepository;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +30,7 @@ public class MypageService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
     private final S3Uploader s3Uploader;
+    private final BookmarkRepository bookmarkRepository;
 
     //마이페이지 사용자 정보
     @Transactional(readOnly = true)
@@ -89,6 +92,28 @@ public class MypageService {
 
         return FarmListResponseDto.builder()
                 .message("빌린 텃밭 목록 조회")
+                .farms(farmDtos)
+                .build();
+    }
+
+    //내가 북마크한 텃밫
+    @Transactional(readOnly = true)
+    public FarmListResponseDto getFarmsBookmarked(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new UserNotFoundException("사용자를 찾을 수 없습니다"));
+
+        List<Bookmark> bookmarks = bookmarkRepository.findByUser(user);
+
+        List<Farm> farms = bookmarks.stream()
+                .map(Bookmark::getFarm) // bookmark -> bookmark.getFarm() 과 동일
+                .toList();
+
+        List<FarmDto> farmDtos = farms.stream()
+                .map(farm -> toFarmDto(farm, userId))
+                .collect(Collectors.toList());
+
+        return FarmListResponseDto.builder()
+                .message("북마크한 텃밭 목록 조회")
                 .farms(farmDtos)
                 .build();
     }

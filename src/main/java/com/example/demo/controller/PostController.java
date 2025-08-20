@@ -70,4 +70,11 @@ public class PostController {
         List<PostSummaryDto> results = postService.searchPosts(title, category);
         return ResponseEntity.ok(results);
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        postService.deletePost(postId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

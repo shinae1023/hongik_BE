@@ -55,6 +55,13 @@ public class MypageController {
         return ResponseEntity.ok(mypageService.getFarmsUsed(userId));
     }
 
+    //북마크한 텃밭
+    @GetMapping("/farm/bookmark")
+    public ResponseEntity<FarmListResponseDto> getFarmsBookmarked(@AuthenticationPrincipal UserInfo user){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getFarmsBookmarked(userId));
+    }
+
     // 유저가 작성한 게시글 목록 조회
     @GetMapping("/post")
     public ResponseEntity<List<PostSummaryDto>> getUserPosts(@AuthenticationPrincipal UserInfo user) {
