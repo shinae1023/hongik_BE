@@ -25,6 +25,7 @@ public class FarmDto {
     private boolean bookmarked;
     private Theme theme;
     private Long borrowerId;
+    private LocalDateTime createdAt;
     private boolean ownerAuth;
     private LocalDateTime updateTime;
 }
