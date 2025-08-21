@@ -51,6 +51,7 @@ public class UserLoginService {
                 .preferredDong(user.getPreferredDong())
                 .preferredThemes(user.getPreferredThemes())
                 .ecoScore(user.getEcoScore())
+                .money(user.getCoin())
                 .build();
     }
 }
