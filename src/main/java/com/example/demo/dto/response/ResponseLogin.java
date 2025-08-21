@@ -20,4 +20,5 @@ public class ResponseLogin {
     private String preferredDong;
     private Set<Theme> preferredThemes;
     private int ecoScore;
+    private Integer money;
 }
