@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @Builder
@@ -22,5 +19,4 @@ public class FarmCreateRequestDto {
     private Integer rentalPeriod;
     private Integer size;
     private Theme theme;
-    private List<MultipartFile> images;
 }
