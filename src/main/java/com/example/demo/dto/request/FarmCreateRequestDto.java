@@ -1,15 +1,11 @@
 package com.example.demo.dto.request;
 
 import com.example.demo.entity.Theme;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class FarmCreateRequestDto {
     private Long userId;
     private String title;

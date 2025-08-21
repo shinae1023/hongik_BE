@@ -1,10 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.FarmCreateRequestDto;
-import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailResponseDto;
 import com.example.demo.dto.response.FarmDto;
-import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.FarmSearchResponseDto;
 import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.entity.Bookmark;
@@ -40,14 +38,15 @@ public class FarmService {
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
-    public FarmCreateResponseDto createFarm(
+    public Long createFarm(
             FarmCreateRequestDto requestDto,
-            List<MultipartFile> images,
-            Long userId) throws IOException {
+            List<MultipartFile> images) throws IOException {
 
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
+        // 1. DTO에서 userId를 가져와 사용자(User)를 찾습니다.
+        User user = userRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + requestDto.getUserId() + ")"));
 
+        // 2. DTO와 User 객체를 사용하여 새로운 Farm 엔티티를 생성합니다.
         Farm farm = Farm.builder()
                 .title(requestDto.getTitle())
                 .description(requestDto.getDescription())
@@ -60,15 +59,15 @@ public class FarmService {
                 .user(user)
                 .build();
 
-        user.updateEcoScore(50);
+        // 3. Farm 엔티티를 저장하고, 사용자(User)의 EcoScore를 업데이트합니다.
         Farm savedFarm = farmRepository.save(farm);
+        user.updateEcoScore(50);
 
-        List<String> uploadedImageUrls = new ArrayList<>();
+        // 4. 이미지가 있다면 S3에 업로드하고, FarmImage 엔티티를 생성 및 저장합니다.
         if (images != null && !images.isEmpty()) {
             List<FarmImage> farmImages = new ArrayList<>();
             for (MultipartFile imageFile : images) {
                 String imageUrl = s3Uploader.upload(imageFile, "farm-images");
-                uploadedImageUrls.add(imageUrl);
 
                 FarmImage farmImage = FarmImage.of(imageUrl, savedFarm);
                 farmImages.add(farmImage);
@@ -77,22 +76,9 @@ public class FarmService {
             farmImageRepository.saveAll(farmImages);
         }
 
-        return FarmCreateResponseDto.builder()
-                .userId(savedFarm.getUser().getUserId())
-                .id(savedFarm.getId())
-                .title(savedFarm.getTitle())
-                .description(savedFarm.getDescription())
-                .address(savedFarm.getAddress())
-                .rentalPeriod(savedFarm.getRentalPeriod())
-                .price(savedFarm.getPrice())
-                .size(savedFarm.getSize())
-                .theme(savedFarm.getTheme())
-                .imageUrls(uploadedImageUrls)
-                .createdAt(savedFarm.getCreatedAt())
-                .build();
+        // 5. 생성된 Farm의 ID를 반환합니다.
+        return savedFarm.getId();
     }
-
-
 
     public MainPageResponseDto getMainPageFarms(Long userId) {
         List<Farm> allFarms = farmRepository.findAllByOrderByUpdateTimeDesc();
@@ -173,6 +159,7 @@ public class FarmService {
                 .bookmarked(bookmarked)
                 .theme(farm.getTheme())
                 .borrowerId(farm.getBorrowerId())
+                .createdAt(farm.getCreatedAt())
                 .updateTime(farm.getUpdateTime())
                 .build();
     }
