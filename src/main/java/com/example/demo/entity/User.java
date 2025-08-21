@@ -70,16 +70,34 @@ public class User extends BaseEntity implements Serializable {
         this.preferredThemes.addAll(themes);
     }
 
-    //mypage user Info update
+    // User.java 엔티티 내부
     public void updateMypageInfo(UserUpdateRequestDto dto) {
-        this.nickname = dto.getNickname();
-        this.profileImage = dto.getProfileImage();
-        this.phone = dto.getPhoneNumber();
-        this.bank = dto.getBank();
-        this.accountNumber = dto.getAccountNumber();
-        this.preferredDong = dto.getPreferredDong();
+        // 닉네임이 요청에 포함된 경우에만 업데이트
+        if (dto.getNickname() != null) {
+            this.nickname = dto.getNickname();
+        }
+        // 프로필 이미지가 요청에 포함된 경우에만 업데이트
+        if (dto.getProfileImage() != null) {
+            this.profileImage = dto.getProfileImage();
+        }
+        // 전화번호가 요청에 포함된 경우에만 업데이트
+        if (dto.getPhoneNumber() != null) {
+            this.phone = dto.getPhoneNumber();
+        }
+        // 은행 정보가 요청에 포함된 경우에만 업데이트
+        if (dto.getBank() != null) {
+            this.bank = dto.getBank();
+        }
+        // 계좌번호가 요청에 포함된 경우에만 업데이트
+        if (dto.getAccountNumber() != null) {
+            this.accountNumber = dto.getAccountNumber();
+        }
+        // 선호 지역(동)이 요청에 포함된 경우에만 업데이트
+        if (dto.getPreferredDong() != null) {
+            this.preferredDong = dto.getPreferredDong();
+        }
 
-        // 선호 테마 업데이트
+        // 선호 테마 업데이트 (이 부분은 이미 null 체크가 구현되어 있어 좋습니다!)
         if (dto.getPreferredThemes() != null) {
             this.preferredThemes.clear();
             this.preferredThemes.addAll(dto.getPreferredThemes());

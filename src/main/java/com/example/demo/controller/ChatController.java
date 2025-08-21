@@ -82,6 +82,7 @@ public class ChatController {
                 .senderNickname(message.getSender().getNickname())
                 .message(message.getMessage())
                 .createdAt(message.getCreatedAt())
+                .imageUrls(message.getImageUrls())
                 .build());
 
         return ResponseEntity.ok(messageResponses);
@@ -93,8 +94,9 @@ public class ChatController {
     @PatchMapping("/room/{chatRoomId}/read")
     public ResponseEntity<String> markMessagesAsRead(
             @PathVariable Long chatRoomId,
-            @RequestParam Long userId) {
+            @AuthenticationPrincipal UserInfo user) {
 
+        Long userId = user.getUser().getUserId();
         chatService.markMessagesAsRead(chatRoomId, userId);
         return ResponseEntity.ok("메시지를 읽음 처리했습니다.");
     }

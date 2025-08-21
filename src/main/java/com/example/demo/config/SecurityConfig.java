@@ -80,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/mypage/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/chat/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/chat/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/chat/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/like/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/like/**").authenticated()
                         .anyRequest().permitAll()
@@ -116,7 +117,7 @@ public class SecurityConfig {
                 "https://jiangxy.github.io",
                 "https://www.spacefarm.cloud"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 

@@ -52,6 +52,7 @@ public class CommentService {
 
         return commentRepository.findByPost(post).stream()
                 .map(comment -> CommentResponseDto.builder()
+                        .id(comment.getId())
                         .userId(comment.getUser().getUserId())
                         .content(comment.getContent())
                         .postId(comment.getPost().getId())
@@ -66,8 +67,9 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(()-> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
 
-        return commentRepository.findByPostIdOrderByCreatedAtDesc(post).stream()
+        return commentRepository.findByPostIdOrderByCreatedAtDesc(postId).stream()
                 .map(comment -> CommentResponseDto.builder()
+                        .id(comment.getId())
                         .userId(comment.getUser().getUserId())
                         .content(comment.getContent())
                         .postId(comment.getPost().getId())

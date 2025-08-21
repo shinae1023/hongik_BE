@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 @Getter
 @Builder
 public class CommentResponseDto {
+    private Long id;
     private Long userId;
     private Long postId;
     private String content;

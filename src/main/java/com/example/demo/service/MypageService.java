@@ -118,11 +118,11 @@ public class MypageService {
                 .build();
     }
 
-    private FarmDto toFarmDto(Farm farm, Long currentUserId) {
+    private FarmDto toFarmDto(Farm farm, Long userId) {
         boolean bookmarked = false;
-        // 여기에 BookmarkRepository를 사용하여 북마크 여부 확인 로직 추가
-        // 예: bookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
-        // 북마크 기능이 아직 구현되지 않았다면 false로 고정
+        if (userId != null) {
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
+        }
 
         return FarmDto.builder()
                 .userId(farm.getUser().getUserId())

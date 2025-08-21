@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByUser(User user);
     List<Comment> findByPost(Post post);
-    List<Comment> findByPostIdOrderByCreatedAtDesc(Post postId);
+    List<Comment> findByPostIdOrderByCreatedAtDesc(Long postId);
 
     Optional<Comment> findByUser_UserIdAndPostId(Long userId, Long postId);
 }

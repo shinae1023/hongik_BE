@@ -72,6 +72,8 @@ public class LikeService {
                             .authorNickname(post.getUser().getNickname())
                             .likeCount((long) post.getLikes().size())
                             .thumbnailUrl(thumbnailUrl) // 수정된 썸네일 URL을 사용
+                            .createdAt(post.getCreatedAt())
+                            .isLiked(true)
                             .build();
                 })
                 .collect(Collectors.toList());

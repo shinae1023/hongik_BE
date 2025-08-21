@@ -39,12 +39,15 @@ public class PostService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
+        Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
         Post post = Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .category(dto.getCategory())
                 .viewCount(0L)
                 .user(user)
+                .createdAt(createdAt)
                 .build();
 
         if (images != null && !images.isEmpty()) {
@@ -77,6 +80,7 @@ public class PostService {
 
         List<CommentResponseDto> commentDtos = post.getComments().stream()
                 .map(comment -> CommentResponseDto.builder()
+                        .id(comment.getId())
                         .userId(comment.getUser().getUserId())
                         .postId(comment.getPost().getId())
                         .content(comment.getContent())
