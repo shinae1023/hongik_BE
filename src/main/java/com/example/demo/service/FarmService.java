@@ -39,7 +39,7 @@ public class FarmService {
     private final S3Uploader s3Uploader;
     private final BookmarkRepository bookmarkRepository;
 
-
+    @Transactional
     public FarmCreateResponseDto createFarm(
             FarmCreateRequestDto requestDto,
             List<MultipartFile> images,
