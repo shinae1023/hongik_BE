@@ -16,6 +16,7 @@ public class ReviewResponse {
     private Long reviewId;
     private Long userId;
     private String nickname;
+    private String profileImage;
     private Long farmId;
     private String content;
     private LocalDateTime createdAt;

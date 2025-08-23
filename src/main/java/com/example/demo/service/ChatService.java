@@ -4,10 +4,7 @@ import com.example.demo.controller.WebSocketChatController;
 import com.example.demo.dto.response.ChatMessageDto;
 import com.example.demo.dto.response.ChatRoomResponseDto;
 import com.example.demo.entity.*;
-import com.example.demo.repository.ChatMessageRepository;
-import com.example.demo.repository.ChatRoomRepository;
-import com.example.demo.repository.FarmRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -34,6 +31,7 @@ public class ChatService {
     private final FarmRepository farmRepository;
     private final S3Uploader s3Uploader;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final BookmarkRepository bookmarkRepository;
 
     /**
      * 채팅방 생성 또는 기존 채팅방 반환
@@ -160,12 +158,24 @@ public class ChatService {
     public ChatRoomResponseDto getChatRoomFarmInfo(Long chatRoomId){
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(()->new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        // Farm 엔티티에서 모든 이미지 URL을 리스트로 가져오기
+        List<String> imageUrls = chatRoom.getFarm().getImages().stream()
+                .map(FarmImage::getImageUrl)
+                .collect(Collectors.toList());
 
         String thumbnailUrl = chatRoom.getFarm().getImages().stream()
                 .findFirst()
                 .map(FarmImage::getImageUrl)
                 .orElse(null);
+
+        // Farm 엔티티에서 소유자 정보 가져오기
+        ChatRoomResponseDto.OwnerInfo ownerInfo = ChatRoomResponseDto.OwnerInfo.builder()
+                .userId(chatRoom.getFarm().getUser().getUserId())
+                .nickname(chatRoom.getFarm().getUser().getNickname())
+                .profileImage(chatRoom.getFarm().getUser().getProfileImage())
+                .build();
 
         return ChatRoomResponseDto.builder()
                 .chatroomId(chatRoom.getId())
@@ -173,11 +183,17 @@ public class ChatService {
                         .id(chatRoom.getFarm().getId())
                         .title(chatRoom.getFarm().getTitle())
                         .price(chatRoom.getFarm().getPrice())
-                        .thumbnailUrl(thumbnailUrl)
                         .address(chatRoom.getFarm().getAddress())
                         .size(chatRoom.getFarm().getSize())
                         .rentalPeriod(chatRoom.getFarm().getRentalPeriod())
                         .theme(chatRoom.getFarm().getTheme())
+                        .description(chatRoom.getFarm().getDescription())
+                        .thumbnailUrl(thumbnailUrl)
+                        .imageUrls(imageUrls) // 수정된 이미지 URL 리스트
+                        .owner(ownerInfo) // 추가된 소유자 정보
+                        .isAvailable(chatRoom.getFarm().isAvailable()) // 이용 가능 여부
+                        .createdAt(chatRoom.getFarm().getCreatedAt()) // 생성 시간
+                        .updatedTime(chatRoom.getFarm().getUpdateTime()) // 수정 시간
                         .build())
                 .build();
     }
@@ -219,6 +235,10 @@ public class ChatService {
                 .map(FarmImage::getImageUrl)
                 .orElse(null);
 
+        List<String> imageUrls = chatRoom.getFarm().getImages().stream()
+                .map(FarmImage::getImageUrl)
+                .collect(Collectors.toList());
+
         return ChatRoomResponseDto.builder()
                 .chatroomId(chatRoom.getId())
                 .farm(ChatRoomResponseDto.FarmInfo.builder()
@@ -226,6 +246,7 @@ public class ChatService {
                         .title(chatRoom.getFarm().getTitle())
                         .price(chatRoom.getFarm().getPrice())
                         .thumbnailUrl(thumbnailUrl)
+                        .imageUrls(imageUrls)
                         .address(chatRoom.getFarm().getAddress())
                         .size(chatRoom.getFarm().getSize())
                         .rentalPeriod(chatRoom.getFarm().getRentalPeriod())

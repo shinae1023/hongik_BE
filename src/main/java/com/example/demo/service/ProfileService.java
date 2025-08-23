@@ -34,7 +34,7 @@ public class ProfileService {
 
         return UserResponseDto.builder()
                 .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
+                .profileImage(user.getProfileImage())
                 .address(user.getAddress())
                 .ecoScore(user.getEcoScore())
                 .build();
@@ -79,8 +79,6 @@ public class ProfileService {
         if (currentUserId != null) {
             bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
         }
-
-
         return FarmDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())

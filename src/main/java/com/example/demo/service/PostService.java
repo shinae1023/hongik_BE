@@ -86,6 +86,7 @@ public class PostService {
                         .content(comment.getContent())
                         .createdAt(comment.getCreatedAt())
                         .authorNickname(comment.getUser().getNickname())
+                        .profileImage(comment.getUser().getProfileImage())
                         .build())
                 .collect(Collectors.toList());
 
@@ -98,6 +99,7 @@ public class PostService {
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .authorNickname(post.getUser().getNickname())
+                .profileImage(post.getUser().getProfileImage())
                 .imageUrls(imageUrls)
                 .comments(commentDtos)
                 .likeCount((long) post.getLikes().size())
@@ -198,6 +200,7 @@ public class PostService {
                 .title(post.getTitle())
                 .category(post.getCategory())
                 .authorNickname(post.getUser().getNickname())
+                .profileImage(post.getUser().getProfileImage())
                 .content(post.getContent())
                 .thumbnailUrl(thumbnailUrl)
                 .likeCount((long) post.getLikes().size())

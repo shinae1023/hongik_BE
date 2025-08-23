@@ -16,6 +16,7 @@ public class PostSummaryDto {
     private String authorNickname;
     private String content;
     private String thumbnailUrl;
+    private String profileImage;
     private Long likeCount;
     private Timestamp createdAt;
     private boolean isLiked;

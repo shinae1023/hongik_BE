@@ -21,9 +21,9 @@ public class PayFarmRequestDto {
     private Integer rentalPeriod;
     private Theme theme;
     private String description;
+    private String thumbnailUrl;
     private List<String> imageUrls;
     private UserDto owner;
-    private boolean bookmarked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedTime;
     private boolean isAvailable;
@@ -39,7 +39,4 @@ public class PayFarmRequestDto {
 
     }
 
-    public static class PayFarmDto{
-
-    }
 }

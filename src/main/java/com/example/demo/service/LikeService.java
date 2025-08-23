@@ -78,6 +78,7 @@ public class LikeService {
                             .thumbnailUrl(thumbnailUrl) // 수정된 썸네일 URL을 사용
                             .createdAt(post.getCreatedAt())
                             .isLiked(true)
+                            .profileImage(post.getUser().getProfileImage())
                             .build();
                 })
                 .collect(Collectors.toList());

@@ -14,4 +14,5 @@ public class CommentResponseDto {
     private String content;
     private String authorNickname;
     private Timestamp createdAt;
+    private String profileImage;
 }

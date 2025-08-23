@@ -33,3 +33,12 @@ logging:
   level:
     org.springframework.security: DEBUG  # 스프링 시큐리티 디버그 로그
     com.example.oauth: DEBUG  # 우리 패키지 디버그 로그
+
+chatbot:
+  base-url: ${CHATBOT_SERVICE_URL}   # FastAPI 주소 (로컬 테스트용 기본)
+  service-key: ${CHATBOT_SERVICE_KEY:}  # FastAPI SERVICE_KEY와 동일하도록 EC2 환경변수에 설정
+
+diagnosis:
+  ai:
+    base-url: http://shinae.fly.dev
+    service-key: ${DIAGNOSIS_AI_KEY}

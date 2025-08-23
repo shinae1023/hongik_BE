@@ -38,5 +38,6 @@ public class FarmDetailResponseDto {
     public static class UserDto {
         private Long userId;
         private String nickname;
+        private String profileImage;
     }
 }

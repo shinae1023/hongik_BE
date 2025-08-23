@@ -12,7 +12,7 @@ public class UserResponseDto {
     //닉넴,프사,동네,점수,계좌
     private String name;
     private String nickname;
-    private String imageUrl;
+    private String profileImage;
     private String address;
     private int ecoScore;
     private String bank;

@@ -58,6 +58,7 @@ public class CommentService {
                         .postId(comment.getPost().getId())
                         .createdAt(comment.getCreatedAt())
                         .authorNickname(comment.getUser().getNickname())
+                        .profileImage(comment.getUser().getProfileImage())
                         .build()).collect(Collectors.toList());
 
     }
@@ -75,6 +76,7 @@ public class CommentService {
                         .postId(comment.getPost().getId())
                         .createdAt(comment.getCreatedAt())
                         .authorNickname(comment.getUser().getNickname())
+                        .profileImage(comment.getUser().getProfileImage())
                         .build()).collect(Collectors.toList());
 
     }

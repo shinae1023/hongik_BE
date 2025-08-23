@@ -130,6 +130,7 @@ public class FarmService {
                 .owner(FarmDetailResponseDto.UserDto.builder()
                         .userId(farm.getUser().getUserId())
                         .nickname(farm.getUser().getNickname())
+                        .profileImage(farm.getUser().getProfileImage())
                         .build())
                 .bookmarked(bookmarked)
                 .createdAt(farm.getCreatedAt())

@@ -6,6 +6,7 @@ import com.example.demo.dto.response.ExchangeResponseDto;
 import com.example.demo.dto.response.PayFarmResponseDto;
 import com.example.demo.entity.Farm;
 import com.example.demo.entity.FarmImage;
+import com.example.demo.entity.Image;
 import com.example.demo.entity.User;
 import com.example.demo.exception.InsufficientCoinException;
 import com.example.demo.exception.UserNotFoundException;
@@ -69,6 +70,7 @@ public class PayService {
     }
 
     private PayFarmResponseDto createPayFarmResponse(Farm farm, User user) {
+
         PayFarmResponseDto.FarmDto farmDto = PayFarmResponseDto.FarmDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())

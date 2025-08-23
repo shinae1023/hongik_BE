@@ -27,6 +27,6 @@ public class ChatbotService {
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(m -> (String) m.get("response"))
-                .timeout(Duration.ofSeconds(8)); // 타임아웃은 환경에 맞춰 조절
+                .timeout(Duration.ofSeconds(15)); // 타임아웃은 환경에 맞춰 조절
     }
 }
