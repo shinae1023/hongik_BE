@@ -46,6 +46,10 @@ public class LikeService {
         Like like = likeRepository.findByUser_UserIdAndPostId(userId, postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 좋아요를 찾을 수 없습니다."));
 
+        if(!(like.getUser().getUserId()).equals(userId)){
+            throw new SecurityException("좋아요를 삭제할 권한이 없습니다.");
+        }
+
         likeRepository.delete(like);
     }
 
