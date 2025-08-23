@@ -4,6 +4,7 @@ import lombok.*;
 
 @Getter
 @Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateChatRoomRequestDto {

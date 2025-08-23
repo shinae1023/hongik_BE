@@ -42,10 +42,14 @@ public class ChatService {
     public ChatRoom getOrCreateChatRoom(Long consumerId, Long providerId, Long farmId) {
         User consumer = userRepository.findById(consumerId)
                 .orElseThrow(() -> new IllegalArgumentException("구매자를 찾을 수 없습니다."));
-        User provider = userRepository.findById(providerId)
-                .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
         Farm farm = farmRepository.findById(farmId)
                 .orElseThrow(() -> new IllegalArgumentException("텃밭을 찾을 수 없습니다."));
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(()-> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
+
+        if(consumerId.equals(providerId)) {
+            throw new IllegalArgumentException("자신의 텃밭엔 채팅방을 생성할 수 없습니다.");
+        }
 
         // 기존 채팅방 확인
         return chatRoomRepository.findChatRoomByUsersAndFarm(consumerId, providerId, farmId)
@@ -151,6 +155,34 @@ public class ChatService {
     }
 
     /**
+     * 현재 채팅방의 텃밭 정보 조회
+     */
+    public ChatRoomResponseDto getChatRoomFarmInfo(Long chatRoomId){
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(()->new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        String thumbnailUrl = chatRoom.getFarm().getImages().stream()
+                .findFirst()
+                .map(FarmImage::getImageUrl)
+                .orElse(null);
+
+        return ChatRoomResponseDto.builder()
+                .chatroomId(chatRoom.getId())
+                .farm(ChatRoomResponseDto.FarmInfo.builder()
+                        .id(chatRoom.getFarm().getId())
+                        .title(chatRoom.getFarm().getTitle())
+                        .price(chatRoom.getFarm().getPrice())
+                        .thumbnailUrl(thumbnailUrl)
+                        .address(chatRoom.getFarm().getAddress())
+                        .size(chatRoom.getFarm().getSize())
+                        .rentalPeriod(chatRoom.getFarm().getRentalPeriod())
+                        .theme(chatRoom.getFarm().getTheme())
+                        .build())
+                .build();
+    }
+
+    /**
      * 안읽은 메시지 수 초기화
      */
     @Transactional
@@ -194,6 +226,11 @@ public class ChatService {
                         .title(chatRoom.getFarm().getTitle())
                         .price(chatRoom.getFarm().getPrice())
                         .thumbnailUrl(thumbnailUrl)
+                        .address(chatRoom.getFarm().getAddress())
+                        .size(chatRoom.getFarm().getSize())
+                        .rentalPeriod(chatRoom.getFarm().getRentalPeriod())
+                        .theme(chatRoom.getFarm().getTheme())
+                        .description(chatRoom.getFarm().getDescription())
                         .build())
                 .provider(ChatRoomResponseDto.UserInfo.builder()
                         .id(chatRoom.getProvider().getUserId())

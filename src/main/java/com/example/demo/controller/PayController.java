@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.PayRequestDto; // DTO import
+import com.example.demo.dto.response.ExchangeResponseDto;
 import com.example.demo.security.UserInfo;
 import com.example.demo.service.PayService;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,10 @@ public class PayController {
 
     @PatchMapping("/exchange")
     // ✅ @RequestParam -> @RequestBody PayRequestDto 로 변경
-    public ResponseEntity<String> exchangeCoin(@AuthenticationPrincipal UserInfo user, @RequestBody PayRequestDto requestDto) {
+    public ResponseEntity<ExchangeResponseDto> exchangeCoin(@AuthenticationPrincipal UserInfo user, @RequestBody PayRequestDto requestDto) {
         Long userId = user.getUser().getUserId();
-        String resultMessage = payService.exchangeCoin(userId, requestDto.getMoney());
         // ✅ Void 대신 처리 결과를 메시지로 반환
-        return ResponseEntity.ok(resultMessage);
+        return ResponseEntity.ok(payService.exchangeCoin(userId, requestDto.getMoney()));
     }
 
     @GetMapping

@@ -39,6 +39,7 @@ public class MypageService {
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
         return UserResponseDto.builder()
+                .name(user.getName())
                 .nickname(user.getNickname())
                 .imageUrl(user.getProfileImage())
                 .address(user.getAddress())
@@ -46,6 +47,8 @@ public class MypageService {
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
                 .phoneNumber(user.getPhone())
+                .addressDong(user.getPreferredDong())
+                .preferredThemes(user.getPreferredThemes())
                 .build();
     }
 
@@ -150,6 +153,7 @@ public class MypageService {
 
         // 3. 수정된 정보를 DTO로 변환하여 반환
         return UserResponseDto.builder()
+                .name(user.getName())
                 .nickname(user.getNickname())
                 .imageUrl(user.getProfileImage())
                 .address(user.getAddress())

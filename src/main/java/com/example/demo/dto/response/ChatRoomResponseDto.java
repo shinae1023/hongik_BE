@@ -1,9 +1,12 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.entity.FarmImage;
+import com.example.demo.entity.Theme;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -25,7 +28,12 @@ public class ChatRoomResponseDto {
         private Long id;
         private String title;
         private String thumbnailUrl;
+        private String description;
         private Integer price;
+        private Integer rentalPeriod;
+        private Integer size;
+        private String address;
+        private Theme theme;
     }
 
     @Getter

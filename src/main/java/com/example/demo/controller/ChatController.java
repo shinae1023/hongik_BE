@@ -37,10 +37,12 @@ public class ChatController {
      */
     @PostMapping("/room")
     public ResponseEntity<ChatRoomResponse> createOrGetChatRoom(
-            @RequestBody CreateChatRoomRequestDto request) {
+            @RequestBody CreateChatRoomRequestDto request, @AuthenticationPrincipal UserInfo user) {
+
+        Long userId = user.getUser().getUserId();
 
         ChatRoom chatRoom = chatService.getOrCreateChatRoom(
-                request.getConsumerId(),
+                userId,
                 request.getProviderId(),
                 request.getFarmId()
         );
@@ -77,6 +79,7 @@ public class ChatController {
         Slice<ChatMessage> messages = chatService.getChatMessages(chatRoomId, pageable);
 
         Slice<MessageResponse> messageResponses = messages.map(message -> MessageResponse.builder()
+                .chatRoomId(chatRoomId)
                 .messageId(message.getId())
                 .senderId(message.getSender().getUserId())
                 .senderNickname(message.getSender().getNickname())
@@ -86,6 +89,14 @@ public class ChatController {
                 .build());
 
         return ResponseEntity.ok(messageResponses);
+    }
+
+    /**
+     * 채팅방 farm info
+     */
+    @GetMapping("/room/{chatRoomId}/farm")
+    public ResponseEntity<ChatRoomResponseDto> getChatRoomFarm(@PathVariable Long chatRoomId){
+        return ResponseEntity.ok(chatService.getChatRoomFarmInfo(chatRoomId));
     }
 
     /**
@@ -138,6 +149,7 @@ public class ChatController {
     @lombok.Getter
     @lombok.Builder
     public static class MessageResponse {
+        private Long chatRoomId;
         private Long messageId;
         private Long senderId;
         private String senderNickname;

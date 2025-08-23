@@ -13,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequestDto {
+    private String name;
     private String nickname;
     private String profileImage;
     private String address;

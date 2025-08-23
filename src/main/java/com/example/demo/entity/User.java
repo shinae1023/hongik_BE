@@ -72,6 +72,9 @@ public class User extends BaseEntity implements Serializable {
 
     // User.java 엔티티 내부
     public void updateMypageInfo(UserUpdateRequestDto dto) {
+        if(dto.getName() != null) {
+            this.name = dto.getName();
+        }
         // 닉네임이 요청에 포함된 경우에만 업데이트
         if (dto.getNickname() != null) {
             this.nickname = dto.getNickname();

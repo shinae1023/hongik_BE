@@ -70,7 +70,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
-                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**", "/comment/**", "/mypage/**", "/chat/**", "/like/**")
+                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**", "/comment/**",
+                        "/mypage/**", "/chat/**", "/like/**", "/pay/**", "/profile/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
@@ -83,6 +84,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/chat/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/like/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/like/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/pay/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/pay/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
