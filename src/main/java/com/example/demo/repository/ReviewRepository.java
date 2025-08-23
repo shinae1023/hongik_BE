@@ -11,4 +11,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     //등록순 정렬
     List<Review> findByFarmIdOrderByCreatedAtAsc(Long farmId);
+
 }
