@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
+import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.UserInfo;
@@ -55,5 +56,10 @@ public class ProfileController {
     @GetMapping("/post/like")
     public ResponseEntity<List<PostSummaryDto>> getUserPostsLiked(@PathVariable Long userId) {
         return ResponseEntity.ok(likeService.getLikedPosts(userId));
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews(@PathVariable Long userId) {
+        return ResponseEntity.ok(profileService.getMyReviews(userId));
     }
 }
