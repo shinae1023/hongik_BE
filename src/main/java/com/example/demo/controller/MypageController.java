@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
+import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
@@ -86,5 +87,11 @@ public class MypageController {
     public ResponseEntity<String> updateUserProfileImage(@AuthenticationPrincipal UserInfo user, @RequestPart("image") MultipartFile imagefile){
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.updateUserProfileImage(userId,imagefile));
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews(@AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getMyReviews(userId));
     }
 }
