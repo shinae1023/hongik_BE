@@ -29,6 +29,7 @@ public class FarmDetailResponseDto {
     private Long borrowerId;
     private LocalDateTime updatedTime;
     private boolean ownerAuth;
+    private boolean isAvailable;
 
     @Getter
     @Builder

@@ -28,4 +28,5 @@ public class FarmDto {
     private LocalDateTime createdAt;
     private boolean ownerAuth;
     private LocalDateTime updateTime;
+    private boolean isAvailable;
 }
