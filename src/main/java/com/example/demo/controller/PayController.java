@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.PayFarmRequestDto;
 import com.example.demo.dto.request.PayRequestDto; // DTO import
 import com.example.demo.dto.response.ExchangeResponseDto;
+import com.example.demo.dto.response.PayFarmResponseDto;
 import com.example.demo.security.UserInfo;
 import com.example.demo.service.PayService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,12 @@ import org.springframework.web.bind.annotation.*; // @RestController, @RequestBo
 @RequestMapping("/pay")
 public class PayController {
     private final PayService payService;
+
+    @PatchMapping
+    public ResponseEntity<PayFarmResponseDto> pay(@AuthenticationPrincipal UserInfo user, @RequestBody PayFarmRequestDto dto) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(payService.pay(dto,userId));
+    }
 
     @PatchMapping("/charge")
     // ✅ @RequestParam -> @RequestBody PayRequestDto 로 변경
