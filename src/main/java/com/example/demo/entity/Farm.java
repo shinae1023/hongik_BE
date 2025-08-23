@@ -85,4 +85,8 @@ public class Farm {
     public void updateTime(){
         this.updateTime = LocalDateTime.now();
     }
+
+    public void updateBorrowerId(Long borrowerId) {
+        this.borrowerId = borrowerId;
+    }
 }
