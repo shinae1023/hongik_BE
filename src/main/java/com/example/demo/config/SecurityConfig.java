@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
                 .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**", "/comment/**",
-                        "/mypage/**", "/chat/**", "/like/**", "/pay/**", "/profile/**")
+                        "/mypage/**", "/chat/**", "/like/**", "/pay/**", "/profile/**", "/api/chatbot/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
@@ -118,7 +118,8 @@ public class SecurityConfig {
                 "https://spacefarm.shop",
                 "http://localhost:8080",
                 "https://jiangxy.github.io",
-                "https://www.spacefarm.cloud"
+                "https://spacefarm-chatbot-app.fly.dev",
+                "https://www.spacefarm.cloud", "http://shinae/fly.dev"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
