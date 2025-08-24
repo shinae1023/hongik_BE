@@ -30,6 +30,7 @@ public class FarmDetailResponseDto {
     private LocalDateTime updatedTime;
     private boolean ownerAuth;
     private boolean isAvailable;
+    private Integer premiumCount;
 
     @Getter
     @Builder

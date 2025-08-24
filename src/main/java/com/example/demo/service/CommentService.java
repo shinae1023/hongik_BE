@@ -82,8 +82,8 @@ public class CommentService {
     }
 
     //댓글 삭제
-    public String deleteComment(@PathVariable Long postId, Long userId){
-        Comment comment = commentRepository.findByUser_UserIdAndPostId(userId,postId)
+    public String deleteComment(Long commentId, Long userId){
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow (()->new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
 
         if(!(comment.getUser().getUserId().equals(userId))){

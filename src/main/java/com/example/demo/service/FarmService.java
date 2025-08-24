@@ -139,6 +139,7 @@ public class FarmService {
                 .updatedTime(farm.getUpdateTime())
                 .ownerAuth(isOwner) //isOwner = true 인 경우, 매물 수정 및 프리미엄 매물 등록 버튼 있어야 함
                 .isAvailable(farm.isAvailable())
+                .premiumCount(farm.getPremiumCount())
                 .build();
     }
 
