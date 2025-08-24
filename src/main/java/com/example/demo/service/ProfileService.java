@@ -107,8 +107,9 @@ public class ProfileService {
         return allReviews.stream()
                 .map(review -> ReviewResponse.builder()
                         .reviewId(review.getId())
-                        .userId(review.getUserId())       // 리뷰 작성자 ID
-                        .nickname(review.getNickname())   // 리뷰 작성자 닉네임
+                        .userId(review.getUser().getUserId())       // 리뷰 작성자 ID
+                        .nickname(review.getUser().getNickname())   // 리뷰 작성자 닉네임
+                        .profileImage(review.getUser().getProfileImage())
                         .farmId(review.getFarmId())
                         .content(review.getContent())
                         .createdAt(review.getCreatedAt())

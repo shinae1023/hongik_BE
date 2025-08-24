@@ -28,8 +28,7 @@ public class ReviewService {
 
         Review review = Review.builder()
                 .farmId(farmId)
-                .userId(user.getUserId())
-                .nickname(user.getNickname())
+                .user(user)
                 .content(request.getContent())
                 .build();
 
@@ -38,8 +37,9 @@ public class ReviewService {
 
         return ReviewResponse.builder()
                 .reviewId(savedReview.getId())
-                .userId(savedReview.getUserId())
-                .nickname(savedReview.getNickname())
+                .userId(savedReview.getUser().getUserId())
+                .nickname(savedReview.getUser().getNickname())
+                .profileImage(savedReview.getUser().getProfileImage())
                 .farmId(savedReview.getFarmId())
                 .content(savedReview.getContent())
                 .createdAt(savedReview.getCreatedAt())
@@ -58,8 +58,9 @@ public class ReviewService {
         return reviews.stream()
                 .map(review -> ReviewResponse.builder()
                         .reviewId(review.getId())
-                        .userId(review.getUserId())
-                        .nickname(review.getNickname())
+                        .userId(review.getUser().getUserId())
+                        .nickname(review.getUser().getNickname())
+                        .profileImage(review.getUser().getProfileImage())
                         .farmId(review.getFarmId())
                         .content(review.getContent())
                         .createdAt(review.getCreatedAt())
@@ -72,7 +73,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 리뷰를 찾을 수 없습니다."));
 
-        if (!review.getUserId().equals(userId)) {
+        if (!review.getUser().getUserId().equals(userId)) {
             throw new IllegalArgumentException("해당 리뷰를 삭제할 권한이 없습니다.");
         }
 
