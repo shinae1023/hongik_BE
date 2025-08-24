@@ -19,11 +19,13 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @Column(name = "farm_id")
     private Long farmId;
 
-    private Long userId;
-    private String nickname;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(columnDefinition = "TEXT")
     private String content;
