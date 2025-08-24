@@ -306,7 +306,7 @@ public class FarmService {
         }
 
         farm.increasePremiumCount();
-        user.updateEcoScore(-100);
+        if(user.getCoin()>0){user.updateCoin(-100);} else throw new IllegalStateException("코인이 부족합니다.");
         farm.updateTime();
 
         return farm.getPremiumCount();

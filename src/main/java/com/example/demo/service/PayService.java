@@ -95,6 +95,8 @@ public class PayService {
                 .farm(farmDto)
                 .EcoScore(String.valueOf(user.getEcoScore())) // 남은 ecoScore
                 .coin(String.valueOf(user.getCoin()))       // 남은 coin
+                .bank(user.getBank())
+                .accountNumber(user.getAccountNumber())
                 .build();
     }
 
@@ -129,5 +131,11 @@ public class PayService {
     public int getMyCoin(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
         return user.getCoin();
+    }
+
+    @Transactional(readOnly = true)
+    public String getMyBank(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        return user.getBank() + " " + user.getAccountNumber();
     }
 }

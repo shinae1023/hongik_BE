@@ -13,6 +13,8 @@ public class PayFarmResponseDto {
     private FarmDto farm;
     private String EcoScore;
     private String coin;
+    private String bank;
+    private String accountNumber;
 
     @Getter
     @Builder

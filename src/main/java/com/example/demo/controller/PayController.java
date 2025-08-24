@@ -23,6 +23,12 @@ public class PayController {
         return ResponseEntity.ok(payService.pay(dto,userId));
     }
 
+    @GetMapping("/bank")
+    public ResponseEntity<String> getBank(@AuthenticationPrincipal UserInfo user){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(payService.getMyBank(userId));
+    }
+
     @PatchMapping("/charge")
     // ✅ @RequestParam -> @RequestBody PayRequestDto 로 변경
     public ResponseEntity<String> chargeCoin(@AuthenticationPrincipal UserInfo user, @RequestBody PayRequestDto requestDto) {

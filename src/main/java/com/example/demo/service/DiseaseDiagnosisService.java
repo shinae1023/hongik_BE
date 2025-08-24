@@ -122,7 +122,7 @@ public class DiseaseDiagnosisService {
             return String.format("AI가 %s 작물이 건강한 상태라고 진단했어. 사용자에게 축하해주고, 앞으로도 건강하게 키울 수 있는 일반적인 관리 팁을 알려줘.", plantType);
         }
 
-        return String.format("농작물 진단 AI가 '%s' 사진을 보고 '%s'이라고 진단했어. 이 진단 결과를 바탕으로, 사용자에게 친절하고 상세하게 설명해줘. 설명에는 '%s'의 주요 원인, 초기 증상, 그리고 구체적인 해결 및 예방 방법을 단계별로 포함해줘.",
+        return String.format("농작물 진단 AI가 '%s' 사진을 보고 '%s'이라고 진단했어. 이 진단 결과를 바탕으로, 사용자에게 친절하고 상세하게 설명해줘. 설명에는 '%s'의 주요 원인, 초기 증상, 그리고 구체적인 해결 및 예방 방법을 포함해 400자이내로 작성해.",
                 plantType, diagnosisResult, diagnosisResult);
     }
 }
