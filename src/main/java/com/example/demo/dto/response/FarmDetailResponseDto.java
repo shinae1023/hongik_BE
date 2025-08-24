@@ -24,8 +24,12 @@ public class FarmDetailResponseDto {
     private String description;
     private List<String> imageUrls;
     private UserDto owner;
-    private boolean isBookmarked;
+    private boolean bookmarked;
     private LocalDateTime createdAt;
+    private Long borrowerId;
+    private LocalDateTime updatedTime;
+    private boolean ownerAuth;
+    private boolean isAvailable;
 
     @Getter
     @Builder
@@ -34,5 +38,6 @@ public class FarmDetailResponseDto {
     public static class UserDto {
         private Long userId;
         private String nickname;
+        private String profileImage;
     }
 }

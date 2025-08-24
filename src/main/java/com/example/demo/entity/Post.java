@@ -55,4 +55,5 @@ public class Post {
     public void addImage(Image image) {
         this.images.add(image);
     }
+
 }

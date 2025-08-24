@@ -16,3 +16,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         highlight_sql: true
+
+chatbot:
+  base-url: ${CHATBOT_SERVICE_URL:http://localhost:8000}   # FastAPI 주소 (로컬 테스트용 기본)
+  service-key: ${CHATBOT_SERVICE_KEY:}  # FastAPI SERVICE_KEY와 동일하도록 EC2 환경변수에 설정

@@ -1,18 +1,11 @@
 package com.example.demo.dto.request;
 
 import com.example.demo.entity.Theme;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import lombok.*;
 
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class FarmCreateRequestDto {
     private Long userId;
     private String title;
@@ -22,7 +15,4 @@ public class FarmCreateRequestDto {
     private Integer rentalPeriod;
     private Integer size;
     private Theme theme;
-    private List<MultipartFile> images;
-    private String bank;
-    private String accountNumber;
 }

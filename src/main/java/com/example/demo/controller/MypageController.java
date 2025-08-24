@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.PostSummaryDto;
+import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
@@ -35,6 +36,12 @@ public class MypageController {
         return ResponseEntity.ok(mypageService.getUsers(userId));
     }
 
+    @GetMapping("/ecoscore")
+    public ResponseEntity<MypageService.EcoScoreResopnseDto> getEcoScore(@AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getEcoScore(userId));
+    }
+
     //등록한 모든 텃밭 조회
     @GetMapping("/farm")
     public ResponseEntity<FarmListResponseDto> getFarms(@AuthenticationPrincipal UserInfo user) {
@@ -42,11 +49,18 @@ public class MypageController {
         return ResponseEntity.ok(mypageService.getMyFarms(userId));
     }
 
-    //등록한 매물 중 대여중인 텃밭
+    //내가 빌린 텃밭
     @GetMapping("/farm/used")
     public ResponseEntity<FarmListResponseDto> getFarmsUsed(@AuthenticationPrincipal UserInfo user) {
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.getFarmsUsed(userId));
+    }
+
+    //북마크한 텃밭
+    @GetMapping("/farm/bookmark")
+    public ResponseEntity<FarmListResponseDto> getFarmsBookmarked(@AuthenticationPrincipal UserInfo user){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getFarmsBookmarked(userId));
     }
 
     // 유저가 작성한 게시글 목록 조회
@@ -73,5 +87,11 @@ public class MypageController {
     public ResponseEntity<String> updateUserProfileImage(@AuthenticationPrincipal UserInfo user, @RequestPart("image") MultipartFile imagefile){
         Long userId = user.getUser().getUserId();
         return ResponseEntity.ok(mypageService.updateUserProfileImage(userId,imagefile));
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews(@AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(mypageService.getMyReviews(userId));
     }
 }

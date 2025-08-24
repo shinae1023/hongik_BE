@@ -1,10 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.FarmCreateRequestDto;
-import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailResponseDto;
 import com.example.demo.dto.response.FarmDto;
-import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.FarmSearchResponseDto;
 import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.entity.Bookmark;
@@ -22,13 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,15 +37,16 @@ public class FarmService {
     private final S3Uploader s3Uploader;
     private final BookmarkRepository bookmarkRepository;
 
-
-    public FarmCreateResponseDto createFarm(
+    @Transactional
+    public Long createFarm(
             FarmCreateRequestDto requestDto,
-            List<MultipartFile> images,
-            Long userId) throws IOException {
+            List<MultipartFile> images) throws IOException {
 
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + userId + ")"));
+        // 1. DTO에서 userId를 가져와 사용자(User)를 찾습니다.
+        User user = userRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. (ID: " + requestDto.getUserId() + ")"));
 
+        // 2. DTO와 User 객체를 사용하여 새로운 Farm 엔티티를 생성합니다.
         Farm farm = Farm.builder()
                 .title(requestDto.getTitle())
                 .description(requestDto.getDescription())
@@ -62,14 +59,15 @@ public class FarmService {
                 .user(user)
                 .build();
 
+        // 3. Farm 엔티티를 저장하고, 사용자(User)의 EcoScore를 업데이트합니다.
         Farm savedFarm = farmRepository.save(farm);
+        user.updateEcoScore(50);
 
-        List<String> uploadedImageUrls = new ArrayList<>();
+        // 4. 이미지가 있다면 S3에 업로드하고, FarmImage 엔티티를 생성 및 저장합니다.
         if (images != null && !images.isEmpty()) {
             List<FarmImage> farmImages = new ArrayList<>();
             for (MultipartFile imageFile : images) {
                 String imageUrl = s3Uploader.upload(imageFile, "farm-images");
-                uploadedImageUrls.add(imageUrl);
 
                 FarmImage farmImage = FarmImage.of(imageUrl, savedFarm);
                 farmImages.add(farmImage);
@@ -78,24 +76,12 @@ public class FarmService {
             farmImageRepository.saveAll(farmImages);
         }
 
-        return FarmCreateResponseDto.builder()
-                .id(savedFarm.getId())
-                .title(savedFarm.getTitle())
-                .description(savedFarm.getDescription())
-                .address(savedFarm.getAddress())
-                .rentalPeriod(savedFarm.getRentalPeriod())
-                .price(savedFarm.getPrice())
-                .size(savedFarm.getSize())
-                .theme(savedFarm.getTheme())
-                .imageUrls(uploadedImageUrls)
-                .bank(requestDto.getBank())
-                .accountNumber(requestDto.getAccountNumber())
-                .createdAt(savedFarm.getCreatedAt())
-                .build();
+        // 5. 생성된 Farm의 ID를 반환합니다.
+        return savedFarm.getId();
     }
 
     public MainPageResponseDto getMainPageFarms(Long userId) {
-        List<Farm> allFarms = farmRepository.findAll();
+        List<Farm> allFarms = farmRepository.findAllByOrderByUpdateTimeDesc();
         List<FarmDto> farmDtos = allFarms.stream()
                 .map(farm -> toFarmDto(farm, userId))
                 .collect(Collectors.toList());
@@ -122,10 +108,13 @@ public class FarmService {
         Farm farm = farmRepository.findById(Long.parseLong(farmId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 텃밭입니다. (ID: " + farmId + ")"));
 
-        boolean isBookmarked = false;
+        boolean bookmarked = false;
         if (userId != null) {
-            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
         }
+
+        boolean isOwner = false;
+        if(Objects.equals(userId, farm.getUser().getUserId())) {isOwner = true;}
 
         return FarmDetailResponseDto.builder()
                 .id(farm.getId())
@@ -141,21 +130,27 @@ public class FarmService {
                 .owner(FarmDetailResponseDto.UserDto.builder()
                         .userId(farm.getUser().getUserId())
                         .nickname(farm.getUser().getNickname())
+                        .profileImage(farm.getUser().getProfileImage())
                         .build())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .createdAt(farm.getCreatedAt())
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
+                .updatedTime(farm.getUpdateTime())
+                .ownerAuth(isOwner) //isOwner = true 인 경우, 매물 수정 및 프리미엄 매물 등록 버튼 있어야 함
+                .isAvailable(farm.isAvailable())
                 .build();
     }
 
 
     private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
+        boolean bookmarked = false;
         if (currentUserId != null) {
-            isBookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
         }
 
         return FarmDto.builder()
+                .userId(farm.getUser().getUserId())
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .price(farm.getPrice())
@@ -163,8 +158,12 @@ public class FarmService {
                 .address(farm.getAddress())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
+                .createdAt(farm.getCreatedAt())
+                .updateTime(farm.getUpdateTime())
+                .isAvailable(farm.isAvailable())
                 .build();
     }
 
@@ -197,7 +196,7 @@ public class FarmService {
     }
 
     public FarmSearchResponseDto searchFarmsByTitle(String title, Long userId) {
-        List<Farm> farms = farmRepository.findByTitleContainingIgnoreCase(title.trim());
+        List<Farm> farms = farmRepository.findByTitleContainingIgnoreCaseOrderByUpdateTimeDesc(title.trim());
         String message = "'" + title + "'으로 검색한 결과입니다.";
 
         if (farms.isEmpty()) {
@@ -285,5 +284,31 @@ public class FarmService {
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    //프리미엄 매물 등록
+    @Transactional
+    public int FarmPremium(Long farmId, Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException("존재하지 않는 유저입니다"));
+
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 텃밭입니다."));
+
+        if (!farm.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("프리미엄 등록 권한이 없습니다."); // 혹은 다른 권한 관련 예외
+        }
+
+        farm.checkAndResetPremiumCount();
+
+        if (farm.getPremiumCount() >= 5) {
+            throw new IllegalStateException("하루 프리미엄 등록 횟수(5회)를 모두 사용했습니다.");
+        }
+
+        farm.increasePremiumCount();
+        user.updateEcoScore(-100);
+        farm.updateTime();
+
+        return farm.getPremiumCount();
     }
 }

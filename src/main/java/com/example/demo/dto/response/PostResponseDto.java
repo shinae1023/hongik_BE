@@ -18,8 +18,10 @@ public class PostResponseDto {
     private Timestamp createdAt;
     private Timestamp modifiedAt;
     private String authorNickname;
+    private String profileImage;
     private List<String> imageUrls;
     private List<CommentResponseDto> comments;
     private Long likeCount;
+    private boolean isLiked;
 }
 

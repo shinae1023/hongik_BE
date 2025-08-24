@@ -2,11 +2,15 @@ package com.example.demo.service;
 
 import com.example.demo.dto.response.FarmDto;
 import com.example.demo.dto.response.FarmListResponseDto;
+import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.entity.Farm;
+import com.example.demo.entity.Review;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.repository.BookmarkRepository;
 import com.example.demo.repository.FarmRepository;
+import com.example.demo.repository.ReviewRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,8 @@ import java.util.stream.Collectors;
 public class ProfileService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
+    private final ReviewRepository reviewRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional(readOnly = true)
     public UserResponseDto getUsers(Long userId) {
@@ -28,7 +34,7 @@ public class ProfileService {
 
         return UserResponseDto.builder()
                 .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
+                .profileImage(user.getProfileImage())
                 .address(user.getAddress())
                 .ecoScore(user.getEcoScore())
                 .build();
@@ -69,11 +75,10 @@ public class ProfileService {
     }
 
     private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
-        // 여기에 BookmarkRepository를 사용하여 북마크 여부 확인 로직 추가
-        // 예: isBookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
-        // 북마크 기능이 아직 구현되지 않았다면 false로 고정
-
+        boolean bookmarked = false;
+        if (currentUserId != null) {
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(currentUserId, farm.getId());
+        }
         return FarmDto.builder()
                 .id(farm.getId())
                 .title(farm.getTitle())
@@ -82,9 +87,33 @@ public class ProfileService {
                 .rentalPeriod(farm.getRentalPeriod())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getMyReviews(Long userId) {
+        // 1. 내가 소유한 모든 텃밭 목록을 조회합니다.
+        List<Farm> myFarms = farmRepository.findByUserUserId(userId);
+
+        // 2. 각 텃밭에 달린 모든 리뷰들을 하나의 리스트로 합칩니다.
+        // flatMap을 사용하여 여러 텃밭의 리뷰 리스트들을 단일 스트림으로 만듭니다.
+        List<Review> allReviews = myFarms.stream()
+                .flatMap(farm -> reviewRepository.findByFarmIdOrderByCreatedAtDesc(farm.getId()).stream())
+                .collect(Collectors.toList());
+
+        // 3. Review 엔티티 리스트를 ReviewResponse DTO 리스트로 변환하여 반환합니다.
+        return allReviews.stream()
+                .map(review -> ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .userId(review.getUserId())       // 리뷰 작성자 ID
+                        .nickname(review.getNickname())   // 리뷰 작성자 닉네임
+                        .farmId(review.getFarmId())
+                        .content(review.getContent())
+                        .createdAt(review.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
 

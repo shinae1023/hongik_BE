@@ -70,10 +70,22 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 이 필터 체인이 적용될 경로 지정
-                .securityMatcher("/api/v1/**", "/reviews/**")
+                .securityMatcher("/api/v1/**", "/reviews/**", "/posts/**", "/comment/**",
+                        "/mypage/**", "/chat/**", "/like/**", "/pay/**", "/profile/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/comment").authenticated()
+                        .requestMatchers(HttpMethod.PATCH,"/mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/mypage/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/chat/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/chat/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/chat/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/like/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/like/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/pay/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/pay/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
@@ -105,9 +117,10 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "https://spacefarm.shop",
                 "http://localhost:8080",
-                "https://jiangxy.github.io"
+                "https://jiangxy.github.io",
+                "https://www.spacefarm.cloud"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 

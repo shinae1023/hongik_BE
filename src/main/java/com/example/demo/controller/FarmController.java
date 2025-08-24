@@ -1,9 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.FarmCreateRequestDto;
-import com.example.demo.dto.response.FarmCreateResponseDto;
 import com.example.demo.dto.response.FarmDetailResponseDto;
-import com.example.demo.dto.response.FarmListResponseDto;
 import com.example.demo.dto.response.FarmSearchResponseDto;
 import com.example.demo.dto.response.MainPageResponseDto;
 import com.example.demo.service.FarmService;
@@ -26,13 +24,14 @@ public class FarmController {
     private final FarmService farmService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FarmCreateResponseDto> createFarm(
+    public ResponseEntity<Long> createFarm(
             @RequestPart("dto") FarmCreateRequestDto requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @AuthenticationPrincipal UserInfo user) throws IOException {
 
-        Long userId = user.getUser().getUserId();
-        return ResponseEntity.status(HttpStatus.CREATED).body(farmService.createFarm(requestDto, images, userId));
+        requestDto.setUserId(user.getUser().getUserId());
+        Long farmId = farmService.createFarm(requestDto, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(farmId);
     }
 
     @GetMapping
@@ -93,5 +92,11 @@ public class FarmController {
         Long userId = user.getUser().getUserId();
         farmService.removeBookmark(farmId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{farmId}/up")
+    public ResponseEntity<Integer> upFarm(@PathVariable Long farmId , @AuthenticationPrincipal UserInfo user){
+        Long userId = user.getUser().getUserId();
+        return ResponseEntity.ok(farmService.FarmPremium(farmId,userId));
     }
 }

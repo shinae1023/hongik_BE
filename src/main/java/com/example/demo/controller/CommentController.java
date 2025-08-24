@@ -29,4 +29,18 @@ public class CommentController {
     public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.getComment(postId));
     }
+
+    //댓글 조회 최신순
+    @GetMapping("/{postId}/new")
+    public ResponseEntity<List<CommentResponseDto>> getCommentNew(@PathVariable Long postId) {
+        return ResponseEntity.ok(commentService.getCommentNew(postId));
+    }
+
+    //댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserInfo user) {
+        Long userId = user.getUser().getUserId();
+        commentService.deleteComment(commentId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

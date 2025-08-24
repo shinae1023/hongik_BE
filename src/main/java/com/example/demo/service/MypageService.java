@@ -3,13 +3,22 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserUpdateRequestDto;
 import com.example.demo.dto.response.FarmDto;
 import com.example.demo.dto.response.FarmListResponseDto;
+import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.dto.response.UserResponseDto;
+import com.example.demo.entity.Bookmark;
 import com.example.demo.entity.Farm;
+import com.example.demo.entity.Review;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.repository.BookmarkRepository;
 import com.example.demo.repository.FarmRepository;
+import com.example.demo.repository.ReviewRepository;
 import com.example.demo.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +33,8 @@ public class MypageService {
     private final UserRepository userRepository;
     private final FarmRepository farmRepository;
     private final S3Uploader s3Uploader;
+    private final BookmarkRepository bookmarkRepository;
+    private final ReviewRepository reviewRepository;
 
     //마이페이지 사용자 정보
     @Transactional(readOnly = true)
@@ -32,13 +43,26 @@ public class MypageService {
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
         return UserResponseDto.builder()
+                .name(user.getName())
                 .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
+                .profileImage(user.getProfileImage())
                 .address(user.getAddress())
                 .ecoScore(user.getEcoScore())
                 .bank(user.getBank())
                 .accountNumber(user.getAccountNumber())
                 .phoneNumber(user.getPhone())
+                .addressDong(user.getPreferredDong())
+                .preferredThemes(user.getPreferredThemes())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public EcoScoreResopnseDto getEcoScore(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException("사용자를 찾을 수 없습니다"));
+        return EcoScoreResopnseDto.builder()
+                .userId(user.getUserId())
+                .ecoscore(user.getEcoScore())
                 .build();
     }
 
@@ -56,34 +80,59 @@ public class MypageService {
 
         // 3. 조회된 Farm 엔티티 목록을 FarmListDto 목록으로 변환하여 반환
         return FarmListResponseDto.builder()
+                .message("내 텃밭 조회")
                 .farms(farmDtos)
                 .build();
     }
 
-    //등록한 매물 중 대여중인 텃밭
+    //내가 대여중인 텃밭
     @Transactional(readOnly = true)
     public FarmListResponseDto getFarmsUsed(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
 
-        List<Farm> farms = farmRepository.findByUserUserIdAndIsAvailable(userId, false);
+        List<Farm> farms = farmRepository.findByBorrowerId(userId);
 
         List<FarmDto> farmDtos = farms.stream()
                 .map(farm -> toFarmDto(farm, userId))
                 .collect(Collectors.toList());
 
         return FarmListResponseDto.builder()
+                .message("빌린 텃밭 목록 조회")
                 .farms(farmDtos)
                 .build();
     }
 
-    private FarmDto toFarmDto(Farm farm, Long currentUserId) {
-        boolean isBookmarked = false;
-        // 여기에 BookmarkRepository를 사용하여 북마크 여부 확인 로직 추가
-        // 예: isBookmarked = bookmarkRepository.existsByFarmIdAndOwnerId(farm.getId(), currentUserId);
-        // 북마크 기능이 아직 구현되지 않았다면 false로 고정
+    //내가 북마크한 텃밫
+    @Transactional(readOnly = true)
+    public FarmListResponseDto getFarmsBookmarked(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new UserNotFoundException("사용자를 찾을 수 없습니다"));
+
+        List<Bookmark> bookmarks = bookmarkRepository.findByUser(user);
+
+        List<Farm> farms = bookmarks.stream()
+                .map(Bookmark::getFarm) // bookmark -> bookmark.getFarm() 과 동일
+                .toList();
+
+        List<FarmDto> farmDtos = farms.stream()
+                .map(farm -> toFarmDto(farm, userId))
+                .collect(Collectors.toList());
+
+        return FarmListResponseDto.builder()
+                .message("북마크한 텃밭 목록 조회")
+                .farms(farmDtos)
+                .build();
+    }
+
+    private FarmDto toFarmDto(Farm farm, Long userId) {
+        boolean bookmarked = false;
+        if (userId != null) {
+            bookmarked = bookmarkRepository.existsByUserUserIdAndFarmId(userId, farm.getId());
+        }
 
         return FarmDto.builder()
+                .userId(farm.getUser().getUserId())
                 .id(farm.getId())
                 .title(farm.getTitle())
                 .address(farm.getAddress())
@@ -91,8 +140,9 @@ public class MypageService {
                 .rentalPeriod(farm.getRentalPeriod())
                 .size(farm.getSize())
                 .thumbnailUrl(farm.getImages().isEmpty() ? null : farm.getImages().get(0).getImageUrl())
-                .isBookmarked(isBookmarked)
+                .bookmarked(bookmarked)
                 .theme(farm.getTheme())
+                .borrowerId(farm.getBorrowerId())
                 .build();
     }
 
@@ -107,8 +157,9 @@ public class MypageService {
 
         // 3. 수정된 정보를 DTO로 변환하여 반환
         return UserResponseDto.builder()
+                .name(user.getName())
                 .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
+                .profileImage(user.getProfileImage())
                 .address(user.getAddress())
                 .ecoScore(user.getEcoScore())
                 .bank(user.getBank())
@@ -144,4 +195,36 @@ public class MypageService {
             throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getMyReviews(Long userId) {
+        // 1. 내가 소유한 모든 텃밭 목록을 조회합니다.
+        List<Farm> myFarms = farmRepository.findByUserUserId(userId);
+
+        // 2. 각 텃밭에 달린 모든 리뷰들을 하나의 리스트로 합칩니다.
+        // flatMap을 사용하여 여러 텃밭의 리뷰 리스트들을 단일 스트림으로 만듭니다.
+        List<Review> allReviews = myFarms.stream()
+                .flatMap(farm -> reviewRepository.findByFarmIdOrderByCreatedAtDesc(farm.getId()).stream())
+                .collect(Collectors.toList());
+
+        // 3. Review 엔티티 리스트를 ReviewResponse DTO 리스트로 변환하여 반환합니다.
+        return allReviews.stream()
+                .map(review -> ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .userId(review.getUserId())       // 리뷰 작성자 ID
+                        .nickname(review.getNickname())   // 리뷰 작성자 닉네임
+                        .farmId(review.getFarmId())
+                        .content(review.getContent())
+                        .createdAt(review.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Builder
+    @Getter
+    public static class EcoScoreResopnseDto {
+        private Long userId;
+        private int ecoscore;
+    }
+
 }
