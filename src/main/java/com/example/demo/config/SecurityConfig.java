@@ -118,8 +118,7 @@ public class SecurityConfig {
                 "https://spacefarm.shop",
                 "http://localhost:8080",
                 "https://jiangxy.github.io",
-                "https://spacefarm-chatbot-app.fly.dev",
-                "https://www.spacefarm.cloud", "http://shinae/fly.dev"
+                "https://www.spacefarm.cloud", "https://spacefarm-chatbot-app.fly.dev", "http://shinae/fly.dev"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

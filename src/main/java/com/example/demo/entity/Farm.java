@@ -64,6 +64,7 @@ public class Farm {
     private Theme theme;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isAvailable = true;
 
     private boolean ownerAuth;
